@@ -1,0 +1,46 @@
+2025/04/24 07:53:06 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server-config.yaml
+2025/04/24 07:53:06 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-orderer
+2025/04/24 07:53:06 [INFO] Server Version: v1.5.13
+2025/04/24 07:53:06 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
+2025/04/24 07:53:06 [WARNING] &{69 The specified CA certificate file /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem does not exist}
+2025/04/24 07:53:06 [INFO] generating key: &{A:ecdsa S:256}
+2025/04/24 07:53:06 [INFO] encoded CSR
+2025/04/24 07:53:06 [INFO] signed certificate with serial number 213392949608284164725435775801181043607165569971
+2025/04/24 07:53:06 [INFO] The CA key and certificate were generated for CA orderer-ca
+2025/04/24 07:53:06 [INFO] The key was stored by BCCSP provider 'SW'
+2025/04/24 07:53:06 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem
+2025/04/24 07:53:06 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server.db
+2025/04/24 07:53:06 [INFO] The issuer key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerPublicKey, secret key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerSecretKey
+2025/04/24 07:53:06 [INFO] Idemix issuer revocation public and secret keys were generated for CA 'orderer-ca'
+2025/04/24 07:53:06 [INFO] The revocation key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerRevocationPublicKey, private key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerRevocationPrivateKey
+2025/04/24 07:53:06 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-orderer
+Error: listen tcp 0.0.0.0:9444: bind: address already in use
+2025/04/24 07:54:25 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server-config.yaml
+2025/04/24 07:54:25 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-orderer
+2025/04/24 07:54:25 [INFO] Server Version: v1.5.13
+2025/04/24 07:54:25 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
+2025/04/24 07:54:25 [INFO] The CA key and certificate already exist
+2025/04/24 07:54:25 [INFO] The key is stored by BCCSP provider 'SW'
+2025/04/24 07:54:25 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem
+2025/04/24 07:54:25 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server.db
+2025/04/24 07:54:25 [INFO] The Idemix issuer public and secret key files already exist
+2025/04/24 07:54:25 [INFO]    secret key file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerSecretKey
+2025/04/24 07:54:25 [INFO]    public key file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerPublicKey
+2025/04/24 07:54:25 [INFO] The Idemix issuer revocation public and secret key files already exist
+2025/04/24 07:54:25 [INFO]    private key file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerRevocationPrivateKey
+2025/04/24 07:54:25 [INFO]    public key file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerRevocationPublicKey
+2025/04/24 07:54:25 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-orderer
+2025/04/24 07:54:25 [INFO] Operation Server Listening on [::]:9444
+2025/04/24 07:54:25 [INFO] Listening on https://0.0.0.0:7055
+2025/04/24 07:55:09 [INFO] signed certificate with serial number 633159603853085523895398926546944281266999403449
+2025/04/24 07:55:09 [INFO] 127.0.0.1:39566 POST /enroll 201 0 "OK"
+2025/04/24 13:10:52 http: TLS handshake error from [::1]:44396: local error: tls: bad record MAC
+2025/04/25 14:31:21 http: TLS handshake error from 89.248.174.186:59178: tls: first record does not look like a TLS handshake
+2025/04/27 06:34:00 http: TLS handshake error from 195.178.110.107:32968: client sent an HTTP request to an HTTPS server
+2025/04/27 06:34:00 http: TLS handshake error from 195.178.110.107:35126: client sent an HTTP request to an HTTPS server
+2025/04/28 07:51:11 http: TLS handshake error from 45.125.236.120:52424: client sent an HTTP request to an HTTPS server
+2025/04/30 01:40:19 [INFO] signed certificate with serial number 648788780793988199704386906250246441331685354393
+2025/04/30 01:40:19 [INFO] 127.0.0.1:49298 POST /enroll 201 0 "OK"
+2025/04/30 01:55:27 [INFO] signed certificate with serial number 648471245214909153402816118751361113987306692270
+2025/04/30 01:55:27 [INFO] 127.0.0.1:46028 POST /enroll 201 0 "OK"
+2025/04/30 07:19:06 http: TLS handshake error from 195.178.110.107:56764: client sent an HTTP request to an HTTPS server
