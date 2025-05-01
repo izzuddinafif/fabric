@@ -133,3 +133,4 @@ Error: listen tcp 127.0.0.1:9443: bind: address already in use
 2025/04/24 17:54:49 http: TLS handshake error from 89.248.174.186:40436: tls: first record does not look like a TLS handshake
 2025/04/27 06:34:00 http: TLS handshake error from 195.178.110.107:44110: client sent an HTTP request to an HTTPS server
 2025/04/28 07:51:11 http: TLS handshake error from 45.125.236.120:56834: client sent an HTTP request to an HTTPS server
+2025/05/01 06:26:40 [INFO] 127.0.0.1:47170 POST /enroll 401 23 "Failed to get user: Failed to get User: sql: no rows in result set"

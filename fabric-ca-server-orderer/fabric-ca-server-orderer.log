@@ -44,3 +44,9 @@ Error: listen tcp 0.0.0.0:9444: bind: address already in use
 2025/04/30 01:55:27 [INFO] signed certificate with serial number 648471245214909153402816118751361113987306692270
 2025/04/30 01:55:27 [INFO] 127.0.0.1:46028 POST /enroll 201 0 "OK"
 2025/04/30 07:19:06 http: TLS handshake error from 195.178.110.107:56764: client sent an HTTP request to an HTTPS server
+2025/05/01 06:24:42 [INFO] 127.0.0.1:44804 POST /register 201 0 "OK"
+2025/05/01 06:27:08 [INFO] 127.0.0.1:56816 POST /register 409 74 "Identity 'ordereradmin' is already registered"
+2025/05/01 06:36:09 [INFO] signed certificate with serial number 598231779863158039062974101813375206690366399566
+2025/05/01 06:36:09 [INFO] 127.0.0.1:40972 POST /enroll 201 0 "OK"
+2025/05/01 08:05:28 [INFO] signed certificate with serial number 592052470478284406262522451435983543871025787058
+2025/05/01 08:05:28 [INFO] 127.0.0.1:41596 POST /enroll 201 0 "OK"

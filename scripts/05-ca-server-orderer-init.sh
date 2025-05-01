@@ -21,4 +21,5 @@ cd $HOME/fabric/fabric-ca-server-orderer
 mkdir tls
 cp $HOME/fabric/fabric-ca-client/tls-ca/rcaadmin-orderer/msp/signcerts/cert.pem tls && cp $HOME/fabric/fabric-ca-client/tls-ca/rcaadmin-orderer/msp/keystore/key.pem tls
 
+# the name doesnt have to be the same as the one in the tls-ca server
 ./fabric-ca-server init -b rcaadmin-orderer:ordererpw # bootstrap user and set FABRIC_CA_HOME here
