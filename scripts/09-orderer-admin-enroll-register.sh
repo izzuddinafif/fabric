@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+# set -e
 
 # Ensure the client config directory exists
 if ! [ -d "$HOME/fabric/fabric-ca-client" ]; then
@@ -7,11 +7,6 @@ if ! [ -d "$HOME/fabric/fabric-ca-client" ]; then
     exit 1
 fi
 
-if ! [ -d "$HOME/fabric/fabric-ca-client/orderer-ca/rcaadmin-orderer/msp" ]; then
-    echo "Directory $HOME/fabric/fabric-ca-client/orderer-ca/rcaadmin-orderer/msp does not exist."
-    exit 1
-fi
- 
 # Ensure the TLS root cert exists
 if ! [ -f "$HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem" ]; then
     echo "TLS root certificate $HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem not found."
@@ -22,25 +17,38 @@ cd $HOME/fabric/fabric-ca-client
 # Set Fabric CA Client home directory
 export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
 
-# Register the orderer identity and admin identity using rcaadmin-orderer credentials
+# Register the orderer identity and admin identity using btstrp-orderer credentials
 # The --id.name specifies the identity being registered (orderer.fabriczakat.local)
 # The --id.secret specifies the password for the new identity
 # The --id.type specifies the role (orderer)
-# The --mspdir points to the MSP of the registrar (rcaadmin-orderer)
+# The --mspdir points to the MSP of the registrar (btstrp-orderer)
 # The --tls.certfiles points to the TLS CA's root certificate
 # The URL points to the Orderer CA server
 
 MSP_DIR=$HOME/fabric/organizations/ordererOrganization/fabriczakat.local/users/Admin@fabriczakat.local/msp
 MSP_DIR_ORG=$HOME/fabric/organizations/ordererOrganization/fabriczakat.local/msp
 
-mkdir -p $MSP_DIR $MSP_DIR_ORG
+# organizations/
+# └── ordererOrganizations/
+#     └── fabriczakat.local/
+#         ├── msp/                          ← Org-wide MSP (trust anchors + config.yaml)
+#         ├── orderers/
+#         │   └── orderer.fabriczakat.local/
+#         │       ├── msp/                  ← Identity MSP of the orderer node
+#         │       └── tls/                  ← TLS identity of the orderer node
+#         └── users/
+#             └── Admin@fabriczakat.local/
+#                 └── msp/                  ← Admin MSP for lifecycle ops
+
+
+mkdir -p $MSP_DIR $MSP_DIR_ORG/cacerts $MSP_DIR_ORG/tlscacerts
 
 # Register the orderer admin identity
 ./fabric-ca-client register -d \
   --id.name ordereradmin \
   --id.secret ordereradminpw \
   --id.type admin \
-  --mspdir orderer-ca/rcaadmin-orderer/msp \
+  --mspdir orderer-ca/btstrp-orderer/msp \
   --tls.certfiles tls-root-cert/tls-ca-cert.pem \
   -u https://ca.orderer.fabriczakat.local:7055
 
@@ -51,8 +59,8 @@ mkdir -p $MSP_DIR $MSP_DIR_ORG
   --mspdir $MSP_DIR
 
 # rename the private key and cert files
-mv $MSP_DIR/keystore/*_sk $MSP_DIR/keystore/orderer-key.pem
-mv $MSP_DIR/signcerts/* $MSP_DIR/signcerts/orderer-cert.pem
+mv $MSP_DIR/keystore/*_sk $MSP_DIR/keystore/orderer-admin-key.pem
+mv $MSP_DIR/signcerts/* $MSP_DIR/signcerts/orderer-admin-cert.pem
 
 # create a config.yaml file for the orderer admin identity
 CACERT=$(ls "$MSP_DIR/cacerts"/*.pem | head -n 1)
@@ -62,8 +70,20 @@ if [ -z "$CACERT" ]; then
   exit 1
 fi
 
-./helper/create-config-yaml.sh $CACERT $MSP_DIR
-./helper/create-config-yaml.sh $CACERT $MSP_DIR_ORG
+./../scripts/helper/create-config-yaml.sh $CACERT $MSP_DIR
+
+cp ../fabric-ca-server-orderer/ca-cert.pem $MSP_DIR_ORG/cacerts/orderer-ca-cert.pem
+cp ./tls-root-cert/tls-ca-cert.pem $MSP_DIR_ORG/tlscacerts/tls-ca-cert.pem
+
+# create a config.yaml file for the orderer org identity
+CACERTORG=$(ls "$MSP_DIR_ORG/cacerts"/*.pem | head -n 1)
+
+if [ -z "$CACERTORG" ]; then
+  echo "Error: No .pem found in $MSP_DIR_ORG/cacerts"
+  exit 1
+fi
+
+./../scripts/helper/create-config-yaml.sh $CACERTORG $MSP_DIR_ORG
 
 # In Fabric CA, identities (names) are registered once, but can be enrolled multiple times,
 # each enrollment creates a new cert/key pair. Revoking a cert disables it, but the identity remains.

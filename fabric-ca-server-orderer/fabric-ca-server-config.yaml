@@ -119,8 +119,8 @@ registry:
   maxenrollments: -1
   # Contains identity information which is used when LDAP is disabled
   identities:
-    - name: rcaadmin-orderer
-      pass: ordererpw
+    - name: btstrp-orderer
+      pass: btstrp-ordererpw
       type: client
       affiliation: ""
       attrs:

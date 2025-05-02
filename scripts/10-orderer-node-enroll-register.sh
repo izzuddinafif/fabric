@@ -13,17 +13,16 @@ if ! [ -f "$HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem" ]; then
 fi
 
 
-MSP_DIR=$HOME/fabric/organizations/ordererOrganization/orderers/orderer.fabriczakat.local/msp
+MSP_DIR=$HOME/fabric/organizations/ordererOrganization/fabriczakat.local/orderers/orderer.fabriczakat.local/msp
 
-# Check if the target MSP directory exists
-if ! [ -d "$MSP_DIR" ]; then
-    echo "Directory $MSP_DIR does not exist"
+if [ -d "$MSP_DIR" ]; then
+    echo "Directory $MSP_DIR already exists. Exiting."
     exit 1
 fi
 
 echo "Registering and Enrolling the orderer node identity (orderer.example.local) with the Orderer CA..."
 
-
+cd $HOME/fabric/fabric-ca-client
 # Set Fabric CA Client home directory
 export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
 
@@ -31,8 +30,8 @@ export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
 ./fabric-ca-client register -d \
   --id.name orderer.fabriczakat.local \
   --id.secret ordererpw \
-  --id.type orderer \   
-  --mspdir orderer-ca/rcaadmin-orderer/msp \
+  --id.type orderer \
+  --mspdir orderer-ca/btstrp-orderer/msp \
   --tls.certfiles tls-root-cert/tls-ca-cert.pem \
   -u https://ca.orderer.fabriczakat.local:7055
 
@@ -43,8 +42,8 @@ export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
   --mspdir $MSP_DIR \
 
 # Rename the private key and cert files
-mv $MSP_DIR/keystore/*_sk $MSP_DIR/keystore/orderer-key.pem
-mv $MSP_DIR/signcerts/* $MSP_DIR/signcerts/orderer-cert.pem
+mv $MSP_DIR/keystore/*_sk $MSP_DIR/keystore/orderer-node-key.pem
+mv $MSP_DIR/signcerts/* $MSP_DIR/signcerts/orderer-node-cert.pem
 
 
 # create a config.yaml file for the orderer node identity
@@ -56,8 +55,35 @@ if [ -z "$CACERT" ]; then
 fi
 
 # create the config.yaml file
-./helper/create-config-yaml.sh $CACERT $MSP_DIR
+./../scripts/helper/create-config-yaml.sh $CACERT $MSP_DIR
 
+ORDERER_TLS_DIR=$HOME/fabric/organizations/ordererOrganization/fabriczakat.local/orderers/orderer.fabriczakat.local/tls
+
+mkdir -p $ORDERER_TLS_DIR
+
+./fabric-ca-client register -d \
+  --id.name orderer.fabriczakat.local \
+  --id.secret ordererpw \
+  -u https://tls.fabriczakat.local:7054 \
+  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
+  --mspdir tls-ca/tlsadmin/msp
+
+./fabric-ca-client enroll -d \
+  -u https://orderer.fabriczakat.local:ordererpw@tls.fabriczakat.local:7054 \
+  --enrollment.profile tls \
+  --csr.hosts orderer.fabriczakat.local \
+  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
+  --mspdir $ORDERER_TLS_DIR
+
+# Rename TLS certs as expected by Fabric
+cp $ORDERER_TLS_DIR/signcerts/cert.pem $ORDERER_TLS_DIR/server.crt
+cp $ORDERER_TLS_DIR/keystore/*_sk $ORDERER_TLS_DIR/server.key
+cp tls-root-cert/tls-ca-cert.pem $ORDERER_TLS_DIR/ca.crt
+
+mkdir -p $MSP_DIR/tlscacerts
+# we need this one apparently 🙃
+
+cp $ORDERER_TLS_DIR/ca.crt $MSP_DIR/tlscacerts/tls-ca-cert.pem
 
 echo "Orderer node identity register enrollment attempt complete."
 echo "Check the output above for success or failure messages from the fabric-ca-client."

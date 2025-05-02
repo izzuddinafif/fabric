@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-$CACERT=$1
-$MSP_DIR=$2
+CACERT=$1
+MSP_DIR=$2
 
 cat > $MSP_DIR/config.yaml <<EOF
 NodeOUs:
