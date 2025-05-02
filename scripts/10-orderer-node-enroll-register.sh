@@ -57,6 +57,8 @@ fi
 # create the config.yaml file
 ./../scripts/helper/create-config-yaml.sh $CACERT $MSP_DIR
 
+
+# Register and enroll the orderer node's TLS identity
 ORDERER_TLS_DIR=$HOME/fabric/organizations/ordererOrganization/fabriczakat.local/orderers/orderer.fabriczakat.local/tls
 
 mkdir -p $ORDERER_TLS_DIR
