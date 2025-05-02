@@ -14,7 +14,7 @@ mkdir $HOME/fabric/fabric-ca-client/tls-ca
 mkdir $HOME/fabric/fabric-ca-client/tls-root-cert
 
 cp $HOME/fabric/fabric-ca-server-tls/ca-cert.pem $HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem
-cp $HOME/fabric/bin/fabric-ca-client $HOME/fabric/fabric-ca-client/
+cp $HOME/bin/fabric-ca-client $HOME/fabric/fabric-ca-client/
 
 cd $HOME/fabric/fabric-ca-client/
 export FABRIC_CA_CLIENT_HOME=$PWD

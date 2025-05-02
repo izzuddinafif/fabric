@@ -89,3 +89,59 @@ cp $ORDERER_TLS_DIR/ca.crt $MSP_DIR/tlscacerts/tls-ca-cert.pem
 
 echo "Orderer node identity register enrollment attempt complete."
 echo "Check the output above for success or failure messages from the fabric-ca-client."
+
+# Final structure for our orderer node (1 orderer, 1 admin)
+
+# organizations/
+# └── ordererOrganizations/
+#     └── fabriczakat.local/
+#         ├── msp/                                 ← Org-wide MSP
+#         │   ├── cacerts/
+#         │   │   └── orderer-ca-cert.pem          ← Root CA cert (identity)
+#         │   ├── config.yaml                      ← NodeOU role mapping
+#         │   └── tlscacerts/
+#         │       └── tls-ca-cert.pem              ← TLS CA cert
+#         │
+#         ├── orderers/
+#         │   └── orderer.fabriczakat.local/
+#         │       ├── msp/                         ← Orderer node's identity MSP
+#         │       │   ├── cacerts/
+#         │       │   │   └── ca-orderer-fabriczakat-local-7055.pem
+#         │       │   ├── config.yaml
+#         │       │   ├── keystore/
+#         │       │   │   └── orderer-node-key.pem
+#         │       │   ├── signcerts/
+#         │       │   │   └── orderer-node-cert.pem
+#         │       │   ├── tlscacerts/
+#         │       │   │   └── tls-ca-cert.pem
+#         │       │   ├── IssuerPublicKey
+#         │       │   ├── IssuerRevocationPublicKey
+#         │       │   └── user/
+#         │       │
+#         │       └── tls/                         ← Orderer's TLS certs
+#         │           ├── server.crt               ← TLS cert
+#         │           ├── server.key               ← TLS private key
+#         │           ├── ca.crt                   ← TLS CA cert
+#         │           ├── signcerts/
+#         │           │   └── cert.pem             ← Raw enrolled cert
+#         │           ├── keystore/
+#         │           │   └── <TLS private key>    ← Raw key
+#         │           ├── tlscacerts/
+#         │           │   └── tls-tls-fabriczakat-local-7054.pem (optional)
+#         │           ├── IssuerPublicKey
+#         │           ├── IssuerRevocationPublicKey
+#         │           └── user/
+#         │
+#         └── users/
+#             └── Admin@fabriczakat.local/
+#                 └── msp/                         ← Admin identity MSP
+#                     ├── cacerts/
+#                     │   └── ca-orderer-fabriczakat-local-7055.pem
+#                     ├── config.yaml
+#                     ├── keystore/
+#                     │   └── orderer-admin-key.pem
+#                     ├── signcerts/
+#                     │   └── orderer-admin-cert.pem
+#                     ├── IssuerPublicKey
+#                     ├── IssuerRevocationPublicKey
+#                     └── user/

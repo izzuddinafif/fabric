@@ -4,7 +4,7 @@ cd $HOME/fabric/fabric-ca-client/
 export FABRIC_CA_CLIENT_HOME=$PWD
 
 if ! [ -x "$HOME/fabric/bin/fabric-ca-client" ]; then
-    cp $HOME/fabric/bin/fabric-ca-client $HOME/fabric/fabric-ca-client/
+    cp $HOME/bin/fabric-ca-client $HOME/fabric/fabric-ca-client/
     exit 1
 fi
 

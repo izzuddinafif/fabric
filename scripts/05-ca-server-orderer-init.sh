@@ -13,7 +13,7 @@ fi
 cd $HOME/fabric
 
 mkdir $HOME/fabric/fabric-ca-server-orderer
-cp $HOME/fabric/bin/fabric-ca-server $HOME/fabric/fabric-ca-server-orderer
+cp $HOME/bin/fabric-ca-server $HOME/fabric/fabric-ca-server-orderer
 cd $HOME/fabric/fabric-ca-server-orderer
 
 # IMPORTANT!
