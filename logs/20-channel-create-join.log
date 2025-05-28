@@ -1,0 +1,59 @@
+2025-05-05 07:34:51 - 🚀 Starting script 20-channel-create-join.sh
+2025-05-05 07:34:51 - 📄 Creating channel 'zakatchannel' using cli.org1 on 10.104.0.2...
+2025-05-05 07:34:51 - EXEC [10.104.0.2]: docker exec cli.org1 peer channel create -o orderer.fabriczakat.local:7050 -c zakatchannel -f ./channel-artifacts/zakatchannel.tx --outputBlock ./channel-artifacts/zakatchannel.block --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 07:34:52.102 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+Error: got unexpected status: BAD_REQUEST -- error validating channel creation transaction for new channel 'zakatchannel', could not successfully apply update to template configuration: error authorizing update: error validating DeltaSet: policy for [Group]  /Channel/Application not satisfied: implicit policy evaluation failed - 0 sub-policies were satisfied, but this policy requires 1 of the 'Admins' sub-policies to be satisfied
+2025-05-05 07:53:39 - 🚀 Starting script 20-channel-create-join.sh
+2025-05-05 07:53:39 - 📄 Creating channel 'zakatchannel' using cli.org1 on 10.104.0.2...
+2025-05-05 07:53:39 - EXEC [10.104.0.2]: docker exec cli.org1 peer channel create -o orderer.fabriczakat.local:7050 -c zakatchannel -f ./channel-artifacts/zakatchannel.tx --outputBlock ./channel-artifacts/zakatchannel.block --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 07:53:40.117 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+Error: got unexpected status: BAD_REQUEST -- error validating channel creation transaction for new channel 'zakatchannel', could not successfully apply update to template configuration: error authorizing update: error validating DeltaSet: policy for [Group]  /Channel/Application not satisfied: implicit policy evaluation failed - 0 sub-policies were satisfied, but this policy requires 1 of the 'Admins' sub-policies to be satisfied
+2025-05-05 08:08:17 - Starting Channel Create/Join Script (20)
+2025-05-05 08:08:17 - ----------------------------------------
+2025-05-05 08:08:17 - Creating channel 'zakatchannel' using Org1 CLI...
+2025-05-05 08:08:17 - ----------------------------------------
+2025-05-05 08:08:17 - Executing on cli.org1.fabriczakat.local@10.104.0.2: peer channel create -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local -c zakatchannel -f /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.tx --outputBlock /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 08:08:18.743 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:18.765 UTC 0002 INFO[0m [cli.common] [34;1mreadBlock[0m -> Expect block, but got status: &{NOT_FOUND}
+[34m2025-05-05 08:08:18.774 UTC 0003 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:18.977 UTC 0004 INFO[0m [cli.common] [34;1mreadBlock[0m -> Expect block, but got status: &{SERVICE_UNAVAILABLE}
+[34m2025-05-05 08:08:18.982 UTC 0005 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:19.184 UTC 0006 INFO[0m [cli.common] [34;1mreadBlock[0m -> Expect block, but got status: &{SERVICE_UNAVAILABLE}
+[34m2025-05-05 08:08:19.189 UTC 0007 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:19.392 UTC 0008 INFO[0m [cli.common] [34;1mreadBlock[0m -> Expect block, but got status: &{SERVICE_UNAVAILABLE}
+[34m2025-05-05 08:08:19.397 UTC 0009 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:19.600 UTC 000a INFO[0m [cli.common] [34;1mreadBlock[0m -> Expect block, but got status: &{SERVICE_UNAVAILABLE}
+[34m2025-05-05 08:08:19.605 UTC 000b INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:19.810 UTC 000c INFO[0m [cli.common] [34;1mreadBlock[0m -> Received block: 0
+/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block
+2025-05-05 08:08:20 - ✅ Channel 'zakatchannel' created successfully. Block file generated: /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block (inside cli.org1.fabriczakat.local)
+2025-05-05 08:08:20 - ----------------------------------------
+2025-05-05 08:08:20 - Joining Org1 Peer to channel 'zakatchannel'...
+2025-05-05 08:08:20 - ----------------------------------------
+2025-05-05 08:08:20 - Executing on cli.org1.fabriczakat.local@10.104.0.2: peer channel join -b /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block
+[34m2025-05-05 08:08:20.702 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:20.743 UTC 0002 INFO[0m [channelCmd] [34;1mexecuteJoin[0m -> Successfully submitted proposal to join channel
+2025-05-05 08:08:23 - Verifying Org1 join on cli.org1.fabriczakat.local@10.104.0.2: peer channel list
+2025-05-05 08:08:24 - Org1 Peer Channel List Output:
+Channels peers has joined: 
+zakatchannel
+2025-05-05 08:08:24 - ✅ Org1 Peer joined channel 'zakatchannel' successfully.
+2025-05-05 08:08:24 - ----------------------------------------
+2025-05-05 08:08:24 - Joining Org2 Peer to channel 'zakatchannel'...
+2025-05-05 08:08:24 - ----------------------------------------
+2025-05-05 08:08:24 - Fetching channel block '/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block' on Org2 CLI...
+2025-05-05 08:08:24 - Executing on cli.org2.fabriczakat.local@10.104.0.4: peer channel fetch 0 /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local -c zakatchannel --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 08:08:25.150 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:25.156 UTC 0002 INFO[0m [cli.common] [34;1mreadBlock[0m -> Received block: 0
+/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block
+2025-05-05 08:08:25 - ✅ Channel block '/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block' fetched successfully on cli.org2.fabriczakat.local.
+2025-05-05 08:08:25 - Executing join on cli.org2.fabriczakat.local@10.104.0.4: peer channel join -b /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/zakatchannel.block
+[34m2025-05-05 08:08:26.088 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:08:26.119 UTC 0002 INFO[0m [channelCmd] [34;1mexecuteJoin[0m -> Successfully submitted proposal to join channel
+2025-05-05 08:08:29 - Verifying Org2 join on cli.org2.fabriczakat.local@10.104.0.4: peer channel list
+2025-05-05 08:08:29 - Org2 Peer Channel List Output:
+Channels peers has joined: 
+zakatchannel
+2025-05-05 08:08:29 - ✅ Org2 Peer joined channel 'zakatchannel' successfully.
+2025-05-05 08:08:29 - 🎉 Channel created and all peers joined successfully!
+2025-05-05 08:08:29 - ----------------------------------------

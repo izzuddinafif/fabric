@@ -1,0 +1,61 @@
+2025-05-05 08:24:04 - Starting Chaincode Approval Script (24) - Attempting escaped inner double quotes
+2025-05-05 08:24:04 - Chaincode Name: zakat
+2025-05-05 08:24:04 - Version: 1.0
+2025-05-05 08:24:04 - Sequence: 1
+2025-05-05 08:24:04 - Package ID: zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+2025-05-05 08:24:04 - Policy: AND('Org1MSP.member', 'Org2MSP.member')
+2025-05-05 08:24:04 - Init Required: --init-required
+2025-05-05 08:24:04 - ----------------------------------------
+2025-05-05 08:24:04 - Approving for Org1 (10.104.0.2)...
+2025-05-05 08:24:04 - ----------------------------------------
+2025-05-05 08:24:04 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer lifecycle chaincode approveformyorg             -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local             --channelID zakatchannel --name zakat --version 1.0             --package-id zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b --sequence 1             --init-required             --signature-policy \"AND('Org1MSP.member', 'Org2MSP.member')\"                          --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem"
+[34m2025-05-05 08:24:07.134 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [de3795091bcc7ffb722d78f3e16f4fe8a345d42b1ccb90c246e72321743852f4] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+2025-05-05 08:24:07 - ✅ Chaincode definition approved successfully by Org1.
+2025-05-05 08:24:07 - 🔎 Verifying approval status for Org1...
+2025-05-05 08:24:07 -    Executing on cli.org1.fabriczakat.local@10.104.0.2: peer lifecycle chaincode queryapproved -C zakatchannel -n zakat --sequence 1 --output json
+Approval Status for Org1:
+{
+	"sequence": 1,
+	"version": "1.0",
+	"endorsement_plugin": "escc",
+	"validation_plugin": "vscc",
+	"validation_parameter": "CigSDBIKCAISAggAEgIIARoLEgkKB09yZzFNU1AaCxIJCgdPcmcyTVNQ",
+	"collections": {},
+	"init_required": true,
+	"source": {
+		"Type": {
+			"LocalPackage": {
+				"package_id": "zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b"
+			}
+		}
+	}
+}
+2025-05-05 08:24:07 - ✅ Approval status verified for Org1.
+2025-05-05 08:24:09 - ----------------------------------------
+2025-05-05 08:24:09 - Approving for Org2 (10.104.0.4)...
+2025-05-05 08:24:09 - ----------------------------------------
+2025-05-05 08:24:09 - Executing on 10.104.0.4: docker exec cli.org2.fabriczakat.local bash -c "peer lifecycle chaincode approveformyorg             -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local             --channelID zakatchannel --name zakat --version 1.0             --package-id zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b --sequence 1             --init-required             --signature-policy \"AND('Org1MSP.member', 'Org2MSP.member')\"                          --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem"
+[34m2025-05-05 08:24:12.915 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [df4a8e6d798d0e2c71344c68bc213f94816f75bfa000d84782a8c26b13dd8f43] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+2025-05-05 08:24:12 - ✅ Chaincode definition approved successfully by Org2.
+2025-05-05 08:24:12 - 🔎 Verifying approval status for Org2...
+2025-05-05 08:24:12 -    Executing on cli.org2.fabriczakat.local@10.104.0.4: peer lifecycle chaincode queryapproved -C zakatchannel -n zakat --sequence 1 --output json
+Approval Status for Org2:
+{
+	"sequence": 1,
+	"version": "1.0",
+	"endorsement_plugin": "escc",
+	"validation_plugin": "vscc",
+	"validation_parameter": "CigSDBIKCAISAggAEgIIARoLEgkKB09yZzFNU1AaCxIJCgdPcmcyTVNQ",
+	"collections": {},
+	"init_required": true,
+	"source": {
+		"Type": {
+			"LocalPackage": {
+				"package_id": "zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b"
+			}
+		}
+	}
+}
+2025-05-05 08:24:13 - ✅ Approval status verified for Org2.
+2025-05-05 08:24:15 - 🎉 Chaincode definition approved by all specified organizations!
+2025-05-05 08:24:15 - ----------------------------------------

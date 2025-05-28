@@ -1,0 +1,135 @@
+# Template for Peer and CLI Docker Compose configuration
+# Variables like ${ORG_NAME}, ${ORG_DOMAIN}, ${PEER_PORT}, ${PEER_OPERATIONS_PORT}, ${CC_PORT}
+# should be substituted by the deployment script.
+version: '3.7'
+
+networks:
+  fabric_network:
+    name: fabric_network
+    external: true # Assume the network is created by the orderer or manually
+
+volumes:
+  peer.${ORG_DOMAIN}_data:
+  peer.${ORG_DOMAIN}_couchdb_data: # If using CouchDB
+
+services:
+  peer.${ORG_DOMAIN}:
+    container_name: peer.${ORG_DOMAIN}
+    image: hyperledger/fabric-peer:2.5.10
+    environment:
+      # Peer specific config
+      - CORE_PEER_ID=peer.${ORG_DOMAIN}
+      - CORE_PEER_ADDRESS=peer.${ORG_DOMAIN}:${PEER_PORT}
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:${PEER_PORT}
+      - CORE_PEER_CHAINCODEADDRESS=peer.${ORG_DOMAIN}:${CC_PORT}
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:${CC_PORT}
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer.${ORG_DOMAIN}:${PEER_PORT} # Self bootstrap
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer.${ORG_DOMAIN}:${PEER_PORT}
+      - CORE_PEER_LOCALMSPID=${ORG_NAME}MSP # e.g., Org1MSP
+      # TLS config
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Operations and Metrics
+      - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:${PEER_OPERATIONS_PORT}
+      - CORE_METRICS_PROVIDER=prometheus
+      # Ledger config (assuming CouchDB for rich queries)
+      # - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.${ORG_DOMAIN}:5984
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME= # Optional CouchDB username
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD= # Optional CouchDB password
+      - FABRIC_LOGGING_SPEC=INFO
+      # External Builders (if needed for chaincode)
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_network # Use the defined network
+    volumes:
+      # Mount the peer's MSP and TLS certs (relative to the compose file in the docker/ dir)
+      - ../organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer.${ORG_DOMAIN}/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer.${ORG_DOMAIN}/tls:/etc/hyperledger/fabric/tls
+      # Mount the peer's ledger data volume
+      - peer.${ORG_DOMAIN}_data:/var/hyperledger/production
+      # Mount docker sock if using external builders
+      - /var/run/docker.sock:/host/var/run/docker.sock
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - ${PEER_PORT}:${PEER_PORT}         # Peer service port
+      - ${CC_PORT}:${CC_PORT}           # Chaincode service port
+      - ${PEER_OPERATIONS_PORT}:${PEER_OPERATIONS_PORT} # Operations port
+    networks:
+      - fabric_network
+    # depends_on: # Add CouchDB dependency if used
+    #   - couchdb.${ORG_DOMAIN}
+    extra_hosts:
+      - "orderer.fabriczakat.local:${ORDERER_IP}"
+      # Add other peers if needed for gossip bootstrap, though external endpoint should suffice
+      # - "peer.org1.fabriczakat.local:${ORG1_IP}"
+      # - "peer.org2.fabriczakat.local:${ORG2_IP}"
+
+  # Optional CouchDB service
+  # couchdb.${ORG_DOMAIN}:
+  #   container_name: couchdb.${ORG_DOMAIN}
+  #   image: couchdb:3.3.3
+  #   environment:
+  #     - COUCHDB_USER= # Optional username
+  #     - COUCHDB_PASSWORD= # Optional password
+  #   ports:
+  #     - "5984" # Expose only internally to the peer container
+  #   volumes:
+  #     - peer.${ORG_DOMAIN}_couchdb_data:/opt/couchdb/data
+  #   networks:
+  #     - fabric_network
+
+  cli.${ORG_DOMAIN}:
+    container_name: cli.${ORG_DOMAIN}
+    image: hyperledger/fabric-tools:2.5.10
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=INFO
+      # Environment specific to this Org's CLI
+      - CORE_PEER_ID=cli.${ORG_DOMAIN}
+      - CORE_PEER_ADDRESS=peer.${ORG_DOMAIN}:${PEER_PORT}
+      - CORE_PEER_LOCALMSPID=${ORG_NAME}MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/${ORG_DOMAIN}/peers/peer.${ORG_DOMAIN}/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/${ORG_DOMAIN}/users/Admin@${ORG_DOMAIN}/msp
+      # Orderer config for channel operations
+      - ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem # Assuming this path exists on the remote machine
+      - ORDERER_ADDRESS=orderer.fabriczakat.local:7050
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      # Mount directories relative to the compose file in the docker/ dir
+      - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+      - ../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+      - ../chaincode:/opt/gopath/src/github.com/hyperledger/fabric/peer/chaincode
+    networks:
+      - fabric_network
+    depends_on:
+      - peer.${ORG_DOMAIN}
+    extra_hosts:
+      - "orderer.fabriczakat.local:${ORDERER_IP}"
+      - "peer.org1.fabriczakat.local:${ORG1_IP}"
+      - "peer.org2.fabriczakat.local:${ORG2_IP}"
+This final project successfully demonstrates the design, deployment, and evaluation of a permissioned blockchain system using Hyperledger Fabric for the Fabric Zakat initiative. The project aimed to build a secure, transparent, and scalable platform to manage digital transactions in a multi-organization environment. Throughout the development process, best practices in identity management, certificate authority configuration, and peer-to-peer network architecture were implemented to ensure a production-ready setup.
+
+Key milestones included the initialization of TLS and organization-specific Certificate Authorities (CAs), proper enrollment and registration of node identities, and the construction of a modular network that adheres to Hyperledger Fabric's security and privacy model. The system architecture was deployed across multiple virtual private servers (VPSes), simulating a realistic distributed environment and highlighting the importance of secure communication and decentralized trust.
+
+Comprehensive testing across functional, performance, and security dimensions confirmed that the system meets core requirements:
+
+    It can handle high transaction loads with low latency and high reliability.
+
+    It preserves data integrity and resists unauthorized access or tampering.
+
+    It maintains consistency across all nodes.
+
+    It ensures transparency and traceability for authorized stakeholders.
+
+In conclusion, this project not only meets its technical objectives but also lays a strong foundation for future expansion, such as integrating smart contracts, extending to mobile client interfaces, or onboarding additional organizations. It showcases how blockchain technology—when properly engineered—can address trust, transparency, and efficiency challenges in collaborative, data-sensitive environments like digital zakat distribution.

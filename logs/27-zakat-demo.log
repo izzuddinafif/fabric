@@ -1,0 +1,320 @@
+2025-05-06 00:53:40 - Starting Zakat Chaincode Demo Script (27)
+[1m[0;34m                              HYPERLEDGER FABRIC DEMO                                    [0m
+
+
+2025-05-06 00:53:40 - Environment: Multi-Host Docker Containers via SSH
+[1;33mDate: Tue May  6 00:53:40 UTC 2025[0m
+[1;33mEnvironment: Multi-Host Docker Containers via SSH[0m
+2025-05-06 00:53:40 - Verifying network components...
+2025-05-06 00:53:40 - Checking orderer container on 10.104.0.3...
+2025-05-06 00:53:40 - Container orderer.fabriczakat.local status (local): Up 17 hours
+2025-05-06 00:53:40 - ✅ Orderer is running
+2025-05-06 00:53:40 - Checking Org1 containers on 10.104.0.2...
+2025-05-06 00:53:41 - Container peer.org1.fabriczakat.local status (on 10.104.0.2): Up 16 hours
+2025-05-06 00:53:41 - Container cli.org1.fabriczakat.local status (on 10.104.0.2): Up 16 hours
+2025-05-06 00:53:41 - ✅ Org1 peer and CLI are running
+2025-05-06 00:53:41 - Checking Org2 containers on 10.104.0.4...
+2025-05-06 00:53:42 - Container peer.org2.fabriczakat.local status (on 10.104.0.4): Up 16 hours
+2025-05-06 00:53:43 - Container cli.org2.fabriczakat.local status (on 10.104.0.4): Up 16 hours
+2025-05-06 00:53:43 - ✅ Org2 peer and CLI are running
+2025-05-06 00:53:43 - ✅ All network components verified
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 0: INITIALIZE LEDGER (InitLedger)[0m
+[1m================================================================================[0m
+
+2025-05-06 00:53:47 - Invoking InitLedger function on chaincode 'zakat' (Sequence: 1)...
+2025-05-06 00:53:47 - Checking chaincode status...
+2025-05-06 00:53:48 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer lifecycle chaincode querycommitted -C zakatchannel -n zakat"
+Committed chaincode definition for chaincode 'zakat' on channel 'zakatchannel':
+Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]
+2025-05-06 00:53:48 - ✅ Chaincode is committed with correct version
+2025-05-06 00:53:48 - Checking chaincode initialization...
+2025-05-06 00:53:48 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"GetAllZakat\",\"Args\":[]}'"
+[{"ID":"ZKT-YDSF-MLG-202311-0001","muzakki":"John Doe","amount":1000000,"type":"maal","status":"collected","organization":"YDSF Malang","timestamp":"2025-05-06T00:44:43Z","mustahik":"","distribution":0,"distributedAt":""},{"ID":"ZKT-YDSF-MLG-202505-1121","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:46:20Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:46:28Z"},{"ID":"ZKT-YDSF-MLG-202505-1820","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:48:54Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:49:03Z"},{"ID":"ZKT-YDSF-MLG-202505-6349","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:45:02Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:45:11Z"}]
+2025-05-06 00:53:49 - ✅ Chaincode is already initialized
+2025-05-06 00:53:51 - Skipping initialization as per user choice
+2025-05-06 00:53:53 - Skipping initialization phase
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 1: QUERY INITIAL BLOCKCHAIN STATE[0m
+[1m================================================================================[0m
+
+2025-05-06 00:53:53 - Querying GetAllZakat from chaincode 'zakat'...
+[1m[1;33mQuery All Zakat Records (using Org1 CLI)[0m
+Retrieving all zakat records from the blockchain to show the initial state after InitLedger.
+
+[4mCommand (inside cli.org1.fabriczakat.local):[0m
+peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"GetAllZakat\",\"Args\":[]}'
+
+[4mResult (Formatted JSON):[0m
+2025-05-06 00:53:53 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"GetAllZakat\",\"Args\":[]}'"
+[{"ID":"ZKT-YDSF-MLG-202311-0001","muzakki":"John Doe","amount":1000000,"type":"maal","status":"collected","organization":"YDSF Malang","timestamp":"2025-05-06T00:44:43Z","mustahik":"","distribution":0,"distributedAt":""},{"ID":"ZKT-YDSF-MLG-202505-1121","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:46:20Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:46:28Z"},{"ID":"ZKT-YDSF-MLG-202505-1820","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:48:54Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:49:03Z"},{"ID":"ZKT-YDSF-MLG-202505-6349","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:45:02Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:45:11Z"}]
+[[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202311-0001"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"John Doe"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"collected"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:44:43Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m0[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-1121"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:46:20Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:46:28Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-1820"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:48:54Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:49:03Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-6349"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:45:02Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:45:11Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m}[37m[39;49;00m
+][37m[39;49;00m
+
+[0;32m✓ Initial state queried successfully[0m
+
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 2: ADD NEW ZAKAT TRANSACTION (Org1 - YDSF Malang)[0m
+[1m================================================================================[0m
+
+2025-05-06 00:53:53 - Adding new Zakat record via Org1 CLI...
+2025-05-06 00:53:53 - Generated random donor name: Joko Lestari
+[1m[1;33mAdd New Zakat Transaction (using Org1 CLI)[0m
+Adding a new zakat donation record (ID: ZKT-YDSF-MLG-202505-2992, Donor: Joko Lestari) to the blockchain as YDSF Malang.
+
+[4mCommand (inside cli.org1.fabriczakat.local):[0m
+peer chaincode invoke ... -c '{"function":"AddZakat","Args":["ZKT-YDSF-MLG-202505-2992", "Joko Lestari", ...] }' ...
+
+[4mResult:[0m
+2025-05-06 00:53:53 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer chaincode invoke     -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local     --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem     -C zakatchannel -n zakat     --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt     --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt     -c '{\"function\":\"AddZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\", \"Joko Lestari\", \"2500000\", \"maal\", \"YDSF Malang\", \"2025-05-06T00:53:53Z\"]}'     --waitForEvent     --connTimeout 30s"
+[34m2025-05-06 00:53:56.255 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [57b45257ec30d5631acb50eb5ff7efd148927f531b993f13427b6b99361d8066] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+[34m2025-05-06 00:53:56.268 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [57b45257ec30d5631acb50eb5ff7efd148927f531b993f13427b6b99361d8066] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+[34m2025-05-06 00:53:56.268 UTC 0003 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 
+2025-05-06 00:53:53 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer chaincode invoke     -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local     --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem     -C zakatchannel -n zakat     --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt     --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt     -c '{\"function\":\"AddZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\", \"Joko Lestari\", \"2500000\", \"maal\", \"YDSF Malang\", \"2025-05-06T00:53:53Z\"]}'     --waitForEvent     --connTimeout 30s"
+[34m2025-05-06 00:53:56.255 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [57b45257ec30d5631acb50eb5ff7efd148927f531b993f13427b6b99361d8066] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+[34m2025-05-06 00:53:56.268 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [57b45257ec30d5631acb50eb5ff7efd148927f531b993f13427b6b99361d8066] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+[34m2025-05-06 00:53:56.268 UTC 0003 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 
+
+[0;32m✓ New Zakat record added successfully[0m
+
+2025-05-06 00:53:56 - Waiting for transaction to be committed...
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 3: QUERY SPECIFIC ZAKAT TRANSACTION[0m
+[1m================================================================================[0m
+
+2025-05-06 00:54:01 - Querying specific Zakat record (ID: ZKT-YDSF-MLG-202505-2992)...
+[1m[1;33mQuery Specific Zakat Record (using Org2 CLI)[0m
+Retrieving details of the newly added zakat record (ID: ZKT-YDSF-MLG-202505-2992) from the blockchain using Org2's peer.
+
+[4mCommand (inside cli.org2.fabriczakat.local):[0m
+peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"QueryZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\"]}'
+
+[4mResult (Formatted JSON):[0m
+2025-05-06 00:54:01 - Executing on 10.104.0.4: docker exec cli.org2.fabriczakat.local bash -c "peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"QueryZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\"]}'"
+{"ID":"ZKT-YDSF-MLG-202505-2992","muzakki":"Joko Lestari","amount":2500000,"type":"maal","status":"collected","organization":"YDSF Malang","timestamp":"2025-05-06T00:53:53Z","mustahik":"","distribution":0,"distributedAt":""}
+{[37m[39;49;00m
+[37m  [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-2992"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Joko Lestari"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"collected"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:53:53Z"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m0[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m[37m[39;49;00m
+}[37m[39;49;00m
+
+[0;32m✓ Specific Zakat record queried successfully[0m
+
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 4: DISTRIBUTE ZAKAT (Org2 - YDSF Jatim)[0m
+[1m================================================================================[0m
+
+2025-05-06 00:54:02 - Distributing Zakat (ID: ZKT-YDSF-MLG-202505-2992) via Org2 CLI...
+[1m[1;33mDistribute Zakat (using Org2 CLI)[0m
+Distributing a portion (1000000) of the collected zakat (ID: ZKT-YDSF-MLG-202505-2992) to 'Orphanage Foundation' (performed by YDSF Jatim).
+
+[4mCommand (inside cli.org2.fabriczakat.local):[0m
+peer chaincode invoke ... -c '{"function":"DistributeZakat","Args":["ZKT-YDSF-MLG-202505-2992", ...] }' ...
+
+[4mResult:[0m
+2025-05-06 00:54:02 - Executing on 10.104.0.4: docker exec cli.org2.fabriczakat.local bash -c "peer chaincode invoke     -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local     --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem     -C zakatchannel -n zakat     --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt     --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt     -c '{\"function\":\"DistributeZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\", \"Orphanage Foundation\", \"1000000\", \"2025-05-06T00:54:02Z\"]}'     --waitForEvent     --connTimeout 30s"
+[34m2025-05-06 00:54:04.866 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [9efb308779422f6482a98eb2f178fe50edb3eb9ae318cf9126454c390d4409ad] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+[34m2025-05-06 00:54:04.868 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [9efb308779422f6482a98eb2f178fe50edb3eb9ae318cf9126454c390d4409ad] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+[34m2025-05-06 00:54:04.869 UTC 0003 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 
+2025-05-06 00:54:02 - Executing on 10.104.0.4: docker exec cli.org2.fabriczakat.local bash -c "peer chaincode invoke     -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local     --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem     -C zakatchannel -n zakat     --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt     --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt     -c '{\"function\":\"DistributeZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\", \"Orphanage Foundation\", \"1000000\", \"2025-05-06T00:54:02Z\"]}'     --waitForEvent     --connTimeout 30s"
+[34m2025-05-06 00:54:04.866 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [9efb308779422f6482a98eb2f178fe50edb3eb9ae318cf9126454c390d4409ad] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+[34m2025-05-06 00:54:04.868 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [9efb308779422f6482a98eb2f178fe50edb3eb9ae318cf9126454c390d4409ad] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+[34m2025-05-06 00:54:04.869 UTC 0003 INFO[0m [chaincodeCmd] [34;1mchaincodeInvokeOrQuery[0m -> Chaincode invoke successful. result: status:200 
+
+[0;32m✓ Zakat distributed successfully[0m
+
+2025-05-06 00:54:04 - Waiting for transaction to be committed...
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 5: QUERY UPDATED ZAKAT TRANSACTION[0m
+[1m================================================================================[0m
+
+2025-05-06 00:54:09 - Querying updated Zakat record (ID: ZKT-YDSF-MLG-202505-2992) after distribution...
+[1m[1;33mQuery Updated Zakat Record (using Org1 CLI)[0m
+Retrieving the updated zakat record (ID: ZKT-YDSF-MLG-202505-2992) showing distribution details using Org1's peer.
+
+[4mCommand (inside cli.org1.fabriczakat.local):[0m
+peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"QueryZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\"]}'
+
+[4mResult (Formatted JSON):[0m
+2025-05-06 00:54:09 - Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"QueryZakat\",\"Args\":[\"ZKT-YDSF-MLG-202505-2992\"]}'"
+{"ID":"ZKT-YDSF-MLG-202505-2992","muzakki":"Joko Lestari","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:53:53Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:54:02Z"}
+{[37m[39;49;00m
+[37m  [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-2992"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Joko Lestari"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:53:53Z"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m  [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:54:02Z"[39;49;00m[37m[39;49;00m
+}[37m[39;49;00m
+
+[0;32m✓ Updated Zakat record queried successfully[0m
+
+
+[1m================================================================================[0m
+[1m[0;34m   STEP 6: QUERY FINAL BLOCKCHAIN STATE[0m
+[1m================================================================================[0m
+
+2025-05-06 00:54:10 - Querying GetAllZakat to show final state...
+[1m[1;33mQuery All Zakat Records (using Org2 CLI)[0m
+Retrieving all zakat records to show the final state of the blockchain.
+
+[4mCommand (inside cli.org2.fabriczakat.local):[0m
+peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"GetAllZakat\",\"Args\":[]}'
+
+[4mResult (Formatted JSON):[0m
+2025-05-06 00:54:10 - Executing on 10.104.0.4: docker exec cli.org2.fabriczakat.local bash -c "peer chaincode query -C zakatchannel -n zakat -c '{\"function\":\"GetAllZakat\",\"Args\":[]}'"
+[{"ID":"ZKT-YDSF-MLG-202311-0001","muzakki":"John Doe","amount":1000000,"type":"maal","status":"collected","organization":"YDSF Malang","timestamp":"2025-05-06T00:44:43Z","mustahik":"","distribution":0,"distributedAt":""},{"ID":"ZKT-YDSF-MLG-202505-1121","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:46:20Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:46:28Z"},{"ID":"ZKT-YDSF-MLG-202505-1820","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:48:54Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:49:03Z"},{"ID":"ZKT-YDSF-MLG-202505-2992","muzakki":"Joko Lestari","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:53:53Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:54:02Z"},{"ID":"ZKT-YDSF-MLG-202505-6349","muzakki":"Ahmad Donor","amount":2500000,"type":"maal","status":"distributed","organization":"YDSF Malang","timestamp":"2025-05-06T00:45:02Z","mustahik":"Orphanage Foundation","distribution":1000000,"distributedAt":"2025-05-06T00:45:11Z"}]
+[[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202311-0001"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"John Doe"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"collected"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:44:43Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m0[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m""[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-1121"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:46:20Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:46:28Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-1820"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:48:54Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:49:03Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-2992"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Joko Lestari"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:53:53Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:54:02Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m},[37m[39;49;00m
+[37m  [39;49;00m{[37m[39;49;00m
+[37m    [39;49;00m[94m"ID"[39;49;00m:[37m [39;49;00m[33m"ZKT-YDSF-MLG-202505-6349"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"muzakki"[39;49;00m:[37m [39;49;00m[33m"Ahmad Donor"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"amount"[39;49;00m:[37m [39;49;00m[34m2500000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"type"[39;49;00m:[37m [39;49;00m[33m"maal"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"status"[39;49;00m:[37m [39;49;00m[33m"distributed"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"organization"[39;49;00m:[37m [39;49;00m[33m"YDSF Malang"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"timestamp"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:45:02Z"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"mustahik"[39;49;00m:[37m [39;49;00m[33m"Orphanage Foundation"[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distribution"[39;49;00m:[37m [39;49;00m[34m1000000[39;49;00m,[37m[39;49;00m
+[37m    [39;49;00m[94m"distributedAt"[39;49;00m:[37m [39;49;00m[33m"2025-05-06T00:45:11Z"[39;49;00m[37m[39;49;00m
+[37m  [39;49;00m}[37m[39;49;00m
+][37m[39;49;00m
+
+[0;32m✓ Final state queried successfully[0m
+
+
+[1m================================================================================[0m
+[1m[0;34m   DEMONSTRATION SUMMARY[0m
+[1m================================================================================[0m
+
+
+[1mThe demonstration showcased the following capabilities:[0m
+
+1. [0;32mTransparent Recording - All zakat transactions are recorded on the blockchain with complete details[0m
+2. [0;32mCross-Organization Operations - Different organizations (YDSF Malang and YDSF Jatim) can interact with the same records[0m
+3. [0;32mTraceability - Each zakat transaction has a unique ID and complete audit trail[0m
+4. [0;32mDistribution Tracking - The blockchain records details of how zakat funds are distributed to recipients[0m
+5. [0;32mData Integrity - All information is cryptographically secured and immutable[0m
+
+[1m[0;34mBlockchain Benefits for Zakat Management:[0m
+
+• [1;33mTransparency - All stakeholders can verify zakat collection and distribution[0m
+• [1;33mTrust - Cryptographic proof ensures data cannot be altered retroactively[0m
+• [1;33mEfficiency - Streamlined process reduces administrative overhead[0m
+• [1;33mAccountability - Clear record of all transactions and distributions[0m
+• [1;33mCollaboration - Multiple zakat organizations can work together on the same platform[0m
+
+[1m[0;32mThank you for attending this demonstration![0m
+2025-05-06 00:54:11 - Zakat Chaincode Demo Script (27) finished successfully.

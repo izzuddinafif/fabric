@@ -1,0 +1,17 @@
+2025-05-05 08:09:17 - Starting Anchor Peer Update Script (21)
+2025-05-05 08:09:17 - ----------------------------------------
+2025-05-05 08:09:17 - Updating anchor peer for Org1 on channel 'zakatchannel'...
+2025-05-05 08:09:17 - ----------------------------------------
+2025-05-05 08:09:17 - Executing on cli.org1.fabriczakat.local@10.104.0.2: peer channel update -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local -c zakatchannel -f /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/Org1MSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 08:09:18.028 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:09:18.056 UTC 0002 INFO[0m [channelCmd] [34;1mupdate[0m -> Successfully submitted channel update
+2025-05-05 08:09:18 - ✅ Anchor peer for Org1 updated successfully on channel 'zakatchannel'.
+2025-05-05 08:09:20 - ----------------------------------------
+2025-05-05 08:09:20 - Updating anchor peer for Org2 on channel 'zakatchannel'...
+2025-05-05 08:09:20 - ----------------------------------------
+2025-05-05 08:09:20 - Executing on cli.org2.fabriczakat.local@10.104.0.4: peer channel update -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local -c zakatchannel -f /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/Org2MSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+[34m2025-05-05 08:09:20.560 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+[34m2025-05-05 08:09:20.581 UTC 0002 INFO[0m [channelCmd] [34;1mupdate[0m -> Successfully submitted channel update
+2025-05-05 08:09:20 - ✅ Anchor peer for Org2 updated successfully on channel 'zakatchannel'.
+2025-05-05 08:09:22 - 🎉 All anchor peers updated successfully!
+2025-05-05 08:09:22 - ----------------------------------------

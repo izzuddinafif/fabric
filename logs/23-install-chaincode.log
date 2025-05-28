@@ -1,0 +1,44 @@
+2025-05-05 08:14:17 - Starting Chaincode Installation Script (23)
+2025-05-05 08:14:17 - 🔎 Checking for local chaincode package: /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:14:17 - ✅ Local chaincode package found.
+2025-05-05 08:14:17 - ----------------------------------------
+2025-05-05 08:14:17 - Processing Org1 (10.104.0.2)...
+2025-05-05 08:14:17 - ----------------------------------------
+2025-05-05 08:14:17 - 📦 Copying chaincode package to Org1 (10.104.0.2)...
+2025-05-05 08:14:18 - ✅ Package copied to 10.104.0.2:/home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:14:18 - ⚙️ Installing chaincode on Org1 peer using cli.org1.fabriczakat.local...
+2025-05-05 08:14:18 -    Copying package into cli.org1.fabriczakat.local...
+2025-05-05 08:14:18 -    ✅ Package copied into container at /opt/gopath/src/zakat_1.0.tar.gz
+2025-05-05 08:14:18 -    Executing on cli.org1.fabriczakat.local@10.104.0.2: peer lifecycle chaincode install /opt/gopath/src/zakat_1.0.tar.gz
+2025-05-05 08:15:42 - Starting Chaincode Installation Script (23)
+2025-05-05 08:15:42 - 🔎 Checking for local chaincode package: /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:15:42 - ✅ Local chaincode package found.
+2025-05-05 08:15:42 - ----------------------------------------
+2025-05-05 08:15:42 - Processing Org1 (10.104.0.2)...
+2025-05-05 08:15:42 - ----------------------------------------
+2025-05-05 08:15:42 - 📦 Copying chaincode package to Org1 (10.104.0.2)...
+2025-05-05 08:15:43 - ✅ Package copied to 10.104.0.2:/home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:15:43 - ⚙️ Installing chaincode on Org1 peer using cli.org1.fabriczakat.local...
+2025-05-05 08:15:43 -    Copying package into cli.org1.fabriczakat.local...
+2025-05-05 08:15:43 -    ✅ Package copied into container at /opt/gopath/src/zakat_1.0.tar.gz
+2025-05-05 08:15:43 -    Executing on cli.org1.fabriczakat.local@10.104.0.2: peer lifecycle chaincode install /opt/gopath/src/zakat_1.0.tar.gz
+[34m2025-05-05 08:16:55.276 UTC 0001 INFO[0m [cli.lifecycle.chaincode] [34;1msubmitInstallProposal[0m -> Installed remotely: response:<status:200 payload:"\nJzakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b\022\tzakat_1.0" > 
+[34m2025-05-05 08:16:55.277 UTC 0002 INFO[0m [cli.lifecycle.chaincode] [34;1msubmitInstallProposal[0m -> Chaincode code package identifier: zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+2025-05-05 08:16:55 - ✅ Chaincode installed successfully on Org1. Package ID: zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+2025-05-05 08:16:57 - ----------------------------------------
+2025-05-05 08:16:57 - Processing Org2 (10.104.0.4)...
+2025-05-05 08:16:57 - ----------------------------------------
+2025-05-05 08:16:57 - 📦 Copying chaincode package to Org2 (10.104.0.4)...
+2025-05-05 08:16:58 - ✅ Package copied to 10.104.0.4:/home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:16:58 - ⚙️ Installing chaincode on Org2 peer using cli.org2.fabriczakat.local...
+2025-05-05 08:16:58 -    Copying package into cli.org2.fabriczakat.local...
+2025-05-05 08:16:58 -    ✅ Package copied into container at /opt/gopath/src/zakat_1.0.tar.gz
+2025-05-05 08:16:58 -    Executing on cli.org2.fabriczakat.local@10.104.0.4: peer lifecycle chaincode install /opt/gopath/src/zakat_1.0.tar.gz
+[34m2025-05-05 08:18:29.668 UTC 0001 INFO[0m [cli.lifecycle.chaincode] [34;1msubmitInstallProposal[0m -> Installed remotely: response:<status:200 payload:"\nJzakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b\022\tzakat_1.0" > 
+[34m2025-05-05 08:18:29.670 UTC 0002 INFO[0m [cli.lifecycle.chaincode] [34;1msubmitInstallProposal[0m -> Chaincode code package identifier: zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+2025-05-05 08:18:29 - ✅ Chaincode installed successfully on Org2. Package ID: zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+2025-05-05 08:18:31 - 🎉 Chaincode installation complete on all specified peers!
+2025-05-05 08:18:31 - ----------------------------------------
+2025-05-05 08:18:31 - 📄 Extracted Package IDs (saved in /home/fabricadmin/fabric/logs/chaincode_package_ids.txt):
+=zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b
+=zakat_1.0:9935f2934e92dbf3b8549e39234b1418e1c12eaa84c0097f6f9eca73432f9e4b

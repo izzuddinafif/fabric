@@ -1,0 +1,17 @@
+2025-05-05 08:25:05 - Starting Chaincode Commit Readiness Check Script (25)
+2025-05-05 08:25:05 - Channel: zakatchannel
+2025-05-05 08:25:05 - Chaincode Name: zakat
+2025-05-05 08:25:05 - Version: 1.0
+2025-05-05 08:25:05 - Sequence: 1
+2025-05-05 08:25:05 - Policy: AND('Org1MSP.member', 'Org2MSP.member')
+2025-05-05 08:25:05 - Init Required: --init-required
+2025-05-05 08:25:05 - Executing check on Org1 (10.104.0.2): docker exec cli.org1.fabriczakat.local bash -c "peer lifecycle chaincode checkcommitreadiness     -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local     --channelID zakatchannel --name zakat --version 1.0     --sequence 1 --init-required     --signature-policy \"AND('Org1MSP.member', 'Org2MSP.member')\"          --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem --output json"
+{
+	"approvals": {
+		"Org1MSP": true,
+		"Org2MSP": true
+	}
+}
+2025-05-05 08:25:06 - ✅ Commit readiness check successful. Output logged to /home/fabricadmin/fabric/logs/25-check-commit-readiness.log.
+2025-05-05 08:25:06 -    Review the log file to see which organizations have approved.
+2025-05-05 08:25:06 - ----------------------------------------

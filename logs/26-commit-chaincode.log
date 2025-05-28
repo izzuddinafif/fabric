@@ -1,0 +1,45 @@
+2025-05-05 08:34:17 - Starting Chaincode Commit Script (26) - Corrected Peer Addresses
+2025-05-05 08:34:17 - Channel: zakatchannel
+2025-05-05 08:34:17 - Chaincode Name: zakat
+2025-05-05 08:34:17 - Version: 1.0
+2025-05-05 08:34:17 - Sequence: 1
+2025-05-05 08:34:17 - Policy: AND('Org1MSP.member', 'Org2MSP.member')
+2025-05-05 08:34:17 - Init Required: --init-required
+2025-05-05 08:34:17 - Using Org1 Peer Address: peer.org1.fabriczakat.local:7051
+2025-05-05 08:34:17 - Using Org1 TLS Cert Path: /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt
+2025-05-05 08:34:17 - Using Org2 Peer Address: peer.org2.fabriczakat.local:7051
+2025-05-05 08:34:17 - Using Org2 TLS Cert Path: /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt
+2025-05-05 08:34:17 - 🔎 Verifying peer TLS cert paths inside cli.org1.fabriczakat.local...
+2025-05-05 08:34:18 -    Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "ls -l /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt"
+-rw-r--r-- 1 1000 1000 822 May  5 08:32 /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt
+2025-05-05 08:34:18 -    Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "ls -l /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt"
+-rw-r--r-- 1 1000 1000 822 May  4 08:51 /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt
+2025-05-05 08:34:19 -    Executing on 10.104.0.2: docker exec cli.org1.fabriczakat.local bash -c "ls -l /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem"
+-rw-r--r-- 1 1000 1000 822 May  5 08:32 /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem
+2025-05-05 08:34:19 - ----------------------------------------
+2025-05-05 08:34:19 - Executing commit from Org1 (10.104.0.2): docker exec cli.org1.fabriczakat.local bash -c "peer lifecycle chaincode commit         -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local         --channelID zakatchannel --name zakat --version 1.0         --sequence 1 --init-required         --signature-policy \"AND('Org1MSP.member', 'Org2MSP.member')\"                  --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt         --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt         --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem         --connTimeout 10s"
+[34m2025-05-05 08:34:22.066 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [4ccc27ea0dabb33cc3001a552c5892a73e32ad3fcb53df58ca061e1a970a250a] committed with status (VALID) at peer.org2.fabriczakat.local:7051
+[34m2025-05-05 08:34:22.067 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [4ccc27ea0dabb33cc3001a552c5892a73e32ad3fcb53df58ca061e1a970a250a] committed with status (VALID) at peer.org1.fabriczakat.local:7051
+2025-05-05 08:34:22 - ✅ Chaincode definition committed successfully on channel 'zakatchannel'.
+2025-05-05 08:34:22 - 🔎 Verifying commit status...
+2025-05-05 08:34:22 -    Executing on cli.org1.fabriczakat.local@10.104.0.2: peer lifecycle chaincode querycommitted -C zakatchannel -n zakat --output json
+Commit Status:
+{
+	"sequence": 1,
+	"version": "1.0",
+	"endorsement_plugin": "escc",
+	"validation_plugin": "vscc",
+	"validation_parameter": "CigSDBIKCAISAggAEgIIARoLEgkKB09yZzFNU1AaCxIJCgdPcmcyTVNQ",
+	"collections": {},
+	"init_required": true,
+	"approvals": {
+		"Org1MSP": true,
+		"Org2MSP": true
+	}
+}
+2025-05-05 08:34:22 - ✅ Commit status verified for sequence 1.
+2025-05-05 08:34:22 - ----------------------------------------
+2025-05-05 08:34:22 - 🔔 IMPORTANT: Chaincode requires initialization. Run the 'InitLedger' (or equivalent) function next using 'peer chaincode invoke'.
+2025-05-05 08:34:22 -    Example (run from Org1 CLI):
+2025-05-05 08:34:22 -    peer chaincode invoke -o orderer.fabriczakat.local:7050 --ordererTLSHostnameOverride orderer.fabriczakat.local --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem -C zakatchannel -n zakat --isInit -c '{"function":"InitLedger","Args":[]}' --peerAddresses peer.org1.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org1.fabriczakat.local/peers/peer.org1.fabriczakat.local/tls/ca.crt --peerAddresses peer.org2.fabriczakat.local:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/peerOrganizations/org2.fabriczakat.local/peers/peer.org2.fabriczakat.local/tls/ca.crt --connTimeout 10s
+2025-05-05 08:34:22 - ----------------------------------------

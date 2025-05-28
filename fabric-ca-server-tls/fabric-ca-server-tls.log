@@ -1,35 +1,98 @@
-2025/05/02 07:09:04 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server-config.yaml
-2025/05/02 07:09:04 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-tls
-2025/05/02 07:09:04 [INFO] Server Version: v1.5.13
-2025/05/02 07:09:04 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
-2025/05/02 07:09:04 [WARNING] &{69 The specified CA certificate file /home/fabricadmin/fabric/fabric-ca-server-tls/ca-cert.pem does not exist}
-2025/05/02 07:09:04 [INFO] generating key: &{A:ecdsa S:256}
-2025/05/02 07:09:04 [INFO] encoded CSR
-2025/05/02 07:09:04 [INFO] signed certificate with serial number 7571243357245706046062263098320786280109503117
-2025/05/02 07:09:04 [INFO] The CA key and certificate were generated for CA tls-ca
-2025/05/02 07:09:04 [INFO] The key was stored by BCCSP provider 'SW'
-2025/05/02 07:09:04 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-tls/ca-cert.pem
-2025/05/02 07:09:04 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server.db
-2025/05/02 07:09:04 [INFO] The issuer key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerPublicKey, secret key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerSecretKey
-2025/05/02 07:09:04 [INFO] Idemix issuer revocation public and secret keys were generated for CA 'tls-ca'
-2025/05/02 07:09:04 [INFO] The revocation key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerRevocationPublicKey, private key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerRevocationPrivateKey
-2025/05/02 07:09:04 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-tls
-2025/05/02 07:09:04 [INFO] Operation Server Listening on 127.0.0.1:9443
-2025/05/02 07:09:04 [INFO] generating key: &{A:ecdsa S:256}
-2025/05/02 07:09:04 [INFO] encoded CSR
-2025/05/02 07:09:04 [INFO] signed certificate with serial number 295858534950765659267296088921203957211472919158
-2025/05/02 07:09:04 [INFO] Listening on https://0.0.0.0:7054
-2025/05/02 07:10:40 [INFO] signed certificate with serial number 143609914739432800192599940533615570552733553183
-2025/05/02 07:10:40 [INFO] 127.0.0.1:54598 POST /enroll 201 0 "OK"
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48148 POST /register 201 0 "OK"
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48150 POST /register 201 0 "OK"
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48166 POST /register 201 0 "OK"
-2025/05/02 07:10:59 [INFO] signed certificate with serial number 186771649362651245306432292206413038182856974825
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48178 POST /enroll 201 0 "OK"
-2025/05/02 07:10:59 [INFO] signed certificate with serial number 464110483700727453752092305602900194357694680078
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48182 POST /enroll 201 0 "OK"
-2025/05/02 07:10:59 [INFO] signed certificate with serial number 343126751774550823634169967163152317987487591401
-2025/05/02 07:10:59 [INFO] 127.0.0.1:48184 POST /enroll 201 0 "OK"
-2025/05/02 09:11:18 [INFO] 127.0.0.1:47660 POST /register 201 0 "OK"
-2025/05/02 09:11:18 [INFO] signed certificate with serial number 132178298746100323669234366363080155890337346103
-2025/05/02 09:11:18 [INFO] 127.0.0.1:47674 POST /enroll 201 0 "OK"
+2025/05/04 07:37:33 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server-config.yaml
+2025/05/04 07:37:33 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-tls
+2025/05/04 07:37:33 [INFO] Server Version: v1.5.13
+2025/05/04 07:37:33 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
+2025/05/04 07:37:33 [WARNING] &{69 The specified CA certificate file /home/fabricadmin/fabric/fabric-ca-server-tls/ca-cert.pem does not exist}
+2025/05/04 07:37:33 [INFO] generating key: &{A:ecdsa S:256}
+2025/05/04 07:37:33 [INFO] encoded CSR
+2025/05/04 07:37:33 [INFO] signed certificate with serial number 714827136563927639121470855817644936064818827037
+2025/05/04 07:37:33 [INFO] The CA key and certificate were generated for CA tls-ca
+2025/05/04 07:37:33 [INFO] The key was stored by BCCSP provider 'SW'
+2025/05/04 07:37:33 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-tls/ca-cert.pem
+2025/05/04 07:37:33 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server.db
+2025/05/04 07:37:33 [INFO] The issuer key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerPublicKey, secret key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerSecretKey
+2025/05/04 07:37:33 [INFO] Idemix issuer revocation public and secret keys were generated for CA 'tls-ca'
+2025/05/04 07:37:33 [INFO] The revocation key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerRevocationPublicKey, private key is at: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerRevocationPrivateKey
+2025/05/04 07:37:33 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-tls
+2025/05/04 07:37:33 [INFO] Operation Server Listening on 127.0.0.1:9443
+2025/05/04 07:37:33 [INFO] generating key: &{A:ecdsa S:256}
+2025/05/04 07:37:33 [INFO] encoded CSR
+2025/05/04 07:37:33 [INFO] signed certificate with serial number 308375695540074876975466181957411190585669060168
+2025/05/04 07:37:33 [INFO] Listening on https://0.0.0.0:7054
+2025/05/04 07:38:02 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server-config.yaml
+2025/05/04 07:38:02 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-tls
+2025/05/04 07:38:02 [INFO] Server Version: v1.5.13
+2025/05/04 07:38:02 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
+2025/05/04 07:38:02 [INFO] The CA key and certificate already exist
+2025/05/04 07:38:02 [INFO] The key is stored by BCCSP provider 'SW'
+2025/05/04 07:38:02 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-tls/ca-cert.pem
+2025/05/04 07:38:02 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-tls/fabric-ca-server.db
+2025/05/04 07:38:02 [INFO] The Idemix issuer public and secret key files already exist
+2025/05/04 07:38:02 [INFO]    secret key file location: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerSecretKey
+2025/05/04 07:38:02 [INFO]    public key file location: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerPublicKey
+2025/05/04 07:38:02 [INFO] The Idemix issuer revocation public and secret key files already exist
+2025/05/04 07:38:02 [INFO]    private key file location: /home/fabricadmin/fabric/fabric-ca-server-tls/msp/keystore/IssuerRevocationPrivateKey
+2025/05/04 07:38:02 [INFO]    public key file location: /home/fabricadmin/fabric/fabric-ca-server-tls/IssuerRevocationPublicKey
+2025/05/04 07:38:02 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-tls
+2025/05/04 07:38:02 [INFO] Operation Server Listening on 127.0.0.1:9443
+2025/05/04 07:38:02 [INFO] Listening on https://0.0.0.0:7054
+2025/05/04 07:38:07 http: TLS handshake error from 127.0.0.1:48394: EOF
+2025/05/04 07:38:08 [INFO] signed certificate with serial number 499550833727668543613817909127738341552981472078
+2025/05/04 07:38:08 [INFO] 127.0.0.1:48400 POST /enroll 201 0 "OK"
+2025/05/04 07:38:10 [INFO] 127.0.0.1:49342 POST /register 201 0 "OK"
+2025/05/04 07:38:10 [INFO] 127.0.0.1:49358 POST /register 201 0 "OK"
+2025/05/04 07:38:11 [INFO] 127.0.0.1:49360 POST /register 201 0 "OK"
+2025/05/04 07:38:11 [INFO] signed certificate with serial number 367869206491945840161089809195673338163988966914
+2025/05/04 07:38:11 [INFO] 127.0.0.1:49364 POST /enroll 201 0 "OK"
+2025/05/04 07:38:11 [INFO] signed certificate with serial number 196963802248777143175343456832344945077883666757
+2025/05/04 07:38:11 [INFO] 127.0.0.1:49366 POST /enroll 201 0 "OK"
+2025/05/04 07:38:11 [INFO] signed certificate with serial number 506616596905318215329816353300331310820010487849
+2025/05/04 07:38:11 [INFO] 127.0.0.1:49370 POST /enroll 201 0 "OK"
+2025/05/04 07:38:30 [INFO] 127.0.0.1:55036 POST /register 201 0 "OK"
+2025/05/04 07:38:30 [INFO] signed certificate with serial number 675751874367591151944657283161633235605607563603
+2025/05/04 07:38:30 [INFO] 127.0.0.1:55048 POST /enroll 201 0 "OK"
+2025/05/04 07:39:07 [INFO] 10.104.0.4:40172 POST /register 201 0 "OK"
+2025/05/04 07:39:07 [INFO] signed certificate with serial number 233117179766692004069547979674117853403830929662
+2025/05/04 07:39:07 [INFO] 10.104.0.4:40184 POST /enroll 201 0 "OK"
+2025/05/04 07:39:08 [INFO] 10.104.0.2:36202 POST /register 201 0 "OK"
+2025/05/04 07:39:08 [INFO] signed certificate with serial number 403147509262541305646948758753844781910117272497
+2025/05/04 07:39:08 [INFO] 10.104.0.2:36212 POST /enroll 201 0 "OK"
+2025/05/04 07:59:00 http: TLS handshake error from 45.125.236.120:33298: client sent an HTTP request to an HTTPS server
+2025/05/04 18:31:55 http: TLS handshake error from 23.94.186.186:58975: tls: first record does not look like a TLS handshake
+2025/05/06 08:29:19 http: TLS handshake error from 195.178.110.107:39570: client sent an HTTP request to an HTTPS server
+2025/05/06 09:35:33 http: TLS handshake error from 83.222.190.190:48110: tls: first record does not look like a TLS handshake
+2025/05/09 08:28:48 http: TLS handshake error from 195.178.110.107:50960: client sent an HTTP request to an HTTPS server
+2025/05/09 08:28:49 http: TLS handshake error from 195.178.110.107:55780: client sent an HTTP request to an HTTPS server
+2025/05/10 08:33:55 http: TLS handshake error from 45.125.236.120:47954: client sent an HTTP request to an HTTPS server
+2025/05/11 18:56:02 http: TLS handshake error from 83.222.191.130:53416: tls: first record does not look like a TLS handshake
+2025/05/12 09:38:23 http: TLS handshake error from 195.178.110.107:48346: client sent an HTTP request to an HTTPS server
+2025/05/12 09:38:23 http: TLS handshake error from 195.178.110.107:53158: client sent an HTTP request to an HTTPS server
+2025/05/13 13:26:55 http: TLS handshake error from 80.75.212.32:58228: tls: first record does not look like a TLS handshake
+2025/05/13 13:27:05 http: TLS handshake error from 80.75.212.32:58236: unexpected EOF
+2025/05/15 12:04:02 http: TLS handshake error from 195.178.110.107:36028: client sent an HTTP request to an HTTPS server
+2025/05/15 12:04:02 http: TLS handshake error from 195.178.110.107:39986: client sent an HTTP request to an HTTPS server
+2025/05/17 19:59:25 http: TLS handshake error from 104.248.62.159:34140: client sent an HTTP request to an HTTPS server
+2025/05/25 07:58:36 http: TLS handshake error from 206.168.34.80:55252: read tcp 128.199.165.67:7054->206.168.34.80:55252: read: connection reset by peer
+2025/05/25 07:59:06 http: TLS handshake error from 206.168.34.80:39184: tls: client offered only unsupported versions: [302 301]
+2025/05/25 07:59:09 http: TLS handshake error from 206.168.34.80:39202: tls: client offered only unsupported versions: [301]
+2025/05/25 07:59:11 http: TLS handshake error from 206.168.34.80:39208: tls: client offered only unsupported versions: []
+2025/05/25 07:59:26 http: TLS handshake error from 206.168.34.80:45534: client sent an HTTP request to an HTTPS server
+2025/05/25 08:06:06 http: TLS handshake error from 206.168.34.208:49932: EOF
+2025/05/25 08:06:08 http: TLS handshake error from 206.168.34.208:49948: EOF
+2025/05/25 08:06:11 http: TLS handshake error from 206.168.34.208:49970: EOF
+2025/05/25 08:06:11 http: TLS handshake error from 206.168.34.208:50008: tls: no cipher suite supported by both client and server
+2025/05/25 08:06:13 http: TLS handshake error from 206.168.34.208:39728: EOF
+2025/05/25 08:06:13 http: TLS handshake error from 206.168.34.208:39744: tls: client offered only unsupported versions: [302 301]
+2025/05/25 08:06:14 http: TLS handshake error from 206.168.34.208:39756: EOF
+2025/05/25 08:06:15 http: TLS handshake error from 206.168.34.208:39772: EOF
+2025/05/25 08:06:17 http: TLS handshake error from 206.168.34.208:39784: EOF
+2025/05/25 08:06:19 http: TLS handshake error from 206.168.34.208:39796: EOF
+2025/05/26 04:49:51 http: TLS handshake error from 162.142.125.205:55186: read tcp 128.199.165.67:7054->162.142.125.205:55186: read: connection reset by peer
+2025/05/26 04:50:13 http: TLS handshake error from 162.142.125.205:38142: tls: client offered only unsupported versions: [302 301]
+2025/05/26 04:50:16 http: TLS handshake error from 162.142.125.205:38152: tls: client offered only unsupported versions: [301]
+2025/05/26 04:50:18 http: TLS handshake error from 162.142.125.205:38218: tls: client offered only unsupported versions: []
+2025/05/26 04:50:32 http: TLS handshake error from 162.142.125.205:36430: client sent an HTTP request to an HTTPS server
+2025/05/27 13:06:58 http: TLS handshake error from 206.168.34.45:56332: tls: client offered only unsupported versions: [302 301]
+2025/05/27 13:07:03 http: TLS handshake error from 206.168.34.45:59596: tls: client offered only unsupported versions: [301]
+2025/05/27 13:07:05 http: TLS handshake error from 206.168.34.45:59634: tls: client offered only unsupported versions: []
+2025/05/27 13:07:14 http: TLS handshake error from 206.168.34.45:59866: client sent an HTTP request to an HTTPS server

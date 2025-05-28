@@ -303,7 +303,7 @@ csr:
       ST: "East Java"
       L: Surabaya
       O: YDSF
-      OU: Orderer
+      OU: Fabric
   hosts:
     - localhost
     - ca.orderer.fabriczakat.local

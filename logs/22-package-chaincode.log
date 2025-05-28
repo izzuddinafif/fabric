@@ -1,0 +1,29 @@
+2025-05-05 08:10:02 - Starting Chaincode Packaging Script (22)
+2025-05-05 08:10:02 - 🔎 Checking for peer binary...
+2025-05-05 08:10:02 - ✅ peer binary found.
+2025-05-05 08:10:02 - 🔎 Checking for chaincode source directory: /home/fabricadmin/fabric/chaincode/zakat-contract
+2025-05-05 08:10:02 - ⛔ Error: Chaincode source directory not found at /home/fabricadmin/fabric/chaincode/zakat-contract
+2025-05-05 08:12:37 - Starting Chaincode Packaging Script (22)
+2025-05-05 08:12:37 - 🔎 Checking for peer binary...
+2025-05-05 08:12:37 - ✅ peer binary found.
+2025-05-05 08:12:37 - 🔎 Checking for chaincode source directory: /home/fabricadmin/fabric/chaincode/zakat
+2025-05-05 08:12:37 - ✅ Chaincode source directory found.
+2025-05-05 08:12:37 - 📦 Packaging chaincode 'zakat' version '1.0'...
+2025-05-05 08:12:37 -    Source: /home/fabricadmin/fabric/chaincode/zakat
+2025-05-05 08:12:37 -    Output: /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:12:37 -    Label: zakat_1.0
+[31m2025-05-05 08:12:37.528 UTC 0001 ERRO[0m [main] [31;1mInitCmd[0m -> Fatal error when initializing core config : error when reading core config file: Config File "core" Not Found in "[/home/fabricadmin/fabric/config]"
+2025-05-05 08:13:32 - Starting Chaincode Packaging Script (22)
+2025-05-05 08:13:32 - 🔎 Checking for peer binary...
+2025-05-05 08:13:32 - ✅ peer binary found.
+2025-05-05 08:13:32 - 🔎 Checking for chaincode source directory: /home/fabricadmin/fabric/chaincode/zakat
+2025-05-05 08:13:32 - ✅ Chaincode source directory found.
+2025-05-05 08:13:32 - 📦 Packaging chaincode 'zakat' version '1.0'...
+2025-05-05 08:13:32 -    Source: /home/fabricadmin/fabric/chaincode/zakat
+2025-05-05 08:13:32 -    Output: /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:13:32 -    Label: zakat_1.0
+2025-05-05 08:13:38 - 🔎 Verifying package file creation...
+-rw------- 1 fabricadmin fabricadmin 13704 May  5 08:13 /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:13:38 - ✅ Chaincode packaged successfully: /home/fabricadmin/fabric/chaincode-packages/zakat_1.0.tar.gz
+2025-05-05 08:13:38 - 🎉 Chaincode packaging complete!
+2025-05-05 08:13:38 - ----------------------------------------

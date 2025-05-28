@@ -8,7 +8,7 @@ if [ -f fabric-ca-server-tls.pid ]; then
         echo "Stopping TLS CA server with PID $PID..."
         sudo kill $PID
         rm fabric-ca-server-tls.pid
-        echo "TLS CA server stopped."
+        echo "✅ TLS CA server stopped."
     fi
 fi
 

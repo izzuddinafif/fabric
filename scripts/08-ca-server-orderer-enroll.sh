@@ -1,12 +1,16 @@
 #!/bin/bash
 # enroll the bootstrap user so we can create other identities
 if ! [ -d "$HOME/fabric/fabric-ca-client" ]; then
-    echo "Directory $HOME/fabric/fabric-ca-client does not exist. Exiting."
+    echo "⛔ Directory $HOME/fabric/fabric-ca-client does not exist. Exiting."
     exit 1
 fi
 
 if ! [ -d "$HOME/fabric/fabric-ca-client/tls-root-cert" ]; then
-    echo "Directory $HOME/fabric/fabric-ca-client/tls-root-cert does not exist. Exiting."
+    echo "⛔ Directory $HOME/fabric/fabric-ca-client/tls-root-cert does not exist. Exiting."
+    exit 1
+fi
+if ! [ -f "$HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem" ]; then
+    echo "⛔ TLS root certificate $HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem not found. Did you run script 03?"
     exit 1
 fi
 
@@ -38,15 +42,34 @@ export FABRIC_CA_CLIENT_HOME=$PWD
 # The --mspdir flag points to the directory where the bootstrap user's
 # certificate and key will be stored.
 
-# In this case, the --mspdir flag works a little differently. 
+# In this case, the --mspdir flag works a little differently.
 # For the enroll command, the --mspdir flag indicates where to
 # store the generated TLS certificates for the btstrp identity.
 MSP_DIR=$HOME/fabric/fabric-ca-client/orderer-ca/btstrp-orderer/msp
 
+echo "🔐 Enrolling bootstrap user 'btstrp-orderer' with Orderer CA..."
 ./fabric-ca-client enroll -d \
   -u https://btstrp-orderer:btstrp-ordererpw@ca.orderer.fabriczakat.local:7055 \
   --tls.certfiles tls-root-cert/tls-ca-cert.pem \
   --mspdir orderer-ca/btstrp-orderer/msp
 
+if [ $? -ne 0 ]; then
+    echo "⛔ Failed to enroll bootstrap user 'btstrp-orderer'."
+    exit 1
+fi
+echo "✅ Bootstrap user 'btstrp-orderer' enrolled successfully."
+
 # rename the private key file
-mv $MSP_DIR/keystore/*_sk $MSP_DIR/keystore/key.pem
+echo "📄 Renaming private key file..."
+KEY_FILE=$(find $MSP_DIR/keystore/ -type f -name "*_sk")
+if [ -z "$KEY_FILE" ]; then
+    echo "⛔ Private key file not found in $MSP_DIR/keystore/"
+    exit 1
+fi
+mv $KEY_FILE $MSP_DIR/keystore/key.pem
+if [ $? -ne 0 ]; then
+    echo "⛔ Failed to rename private key file."
+    exit 1
+fi
+echo "✅ Private key file renamed successfully."
+

@@ -12,8 +12,8 @@ fi
 if [ -f fabric-ca-server-tls.pid ]; then
     PID=$(cat fabric-ca-server-tls.pid)
     if ps -p $PID > /dev/null; then
-        echo "TLS CA server is already running with PID $PID. Exiting."
-        exit 1
+        echo "✅ TLS CA server is already running with PID $PID. Exiting."
+        exit 0
     fi
 fi
 
@@ -35,11 +35,11 @@ if [[ $(yq eval '.tls.enabled' fabric-ca-server-config.yaml) == "false" ]]; then
     yq eval '.csr.hosts = ["localhost", "tls.fabriczakat.local"]' -i fabric-ca-server-config.yaml
     yq eval '.csr.names[0].C = "ID" | .csr.names[0].ST = "East Java" | .csr.names[0].L = "Surabaya"' -i fabric-ca-server-config.yaml
 
-    rm -rf msp/ ca-cert.pem # remove old (default) certs and keys (MSP folder) and get a new one after starting the server
+    rm -rf msp/ ca-cert.pem IssuerPublicKey IssuerRevocationPublicKey fabric-ca-server.db # remove old (default) certs and keys (MSP folder) and get a new one after starting the server
 fi
 
 # Start the TLS CA server
 nohup ./fabric-ca-server start >> fabric-ca-server-tls.log 2>&1 &
 echo $! > fabric-ca-server-tls.pid
-echo "TLS CA server started with PID $(cat fabric-ca-server-tls.pid)"
+echo "✅ TLS CA server started with PID $(cat fabric-ca-server-tls.pid)"
 echo "TLS CA server logs are being written to fabric-ca-server-tls.log"

@@ -1,54 +1,68 @@
-2025/05/02 07:13:54 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server-config.yaml
-2025/05/02 07:13:54 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-orderer
-2025/05/02 07:13:54 [INFO] Server Version: v1.5.13
-2025/05/02 07:13:54 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
-2025/05/02 07:13:54 [WARNING] &{69 The specified CA certificate file /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem does not exist}
-2025/05/02 07:13:54 [INFO] generating key: &{A:ecdsa S:256}
-2025/05/02 07:13:54 [INFO] encoded CSR
-2025/05/02 07:13:54 [INFO] signed certificate with serial number 601258700791289692342593195073081130744808057642
-2025/05/02 07:13:54 [INFO] The CA key and certificate were generated for CA orderer-ca
-2025/05/02 07:13:54 [INFO] The key was stored by BCCSP provider 'SW'
-2025/05/02 07:13:54 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem
-2025/05/02 07:13:54 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server.db
-2025/05/02 07:13:54 [INFO] The issuer key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerPublicKey, secret key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerSecretKey
-2025/05/02 07:13:54 [INFO] Idemix issuer revocation public and secret keys were generated for CA 'orderer-ca'
-2025/05/02 07:13:54 [INFO] The revocation key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerRevocationPublicKey, private key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerRevocationPrivateKey
-2025/05/02 07:13:54 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-orderer
-2025/05/02 07:13:54 [INFO] Operation Server Listening on [::]:9444
-2025/05/02 07:13:54 [INFO] Listening on https://0.0.0.0:7055
-2025/05/02 07:14:38 [INFO] signed certificate with serial number 333021195260740921309566696400020451089000379304
-2025/05/02 07:14:38 [INFO] 127.0.0.1:35714 POST /enroll 201 0 "OK"
-2025/05/02 07:20:12 [INFO] signed certificate with serial number 158996194135802812787098721091898418056615702954
-2025/05/02 07:20:12 [INFO] 127.0.0.1:39748 POST /enroll 201 0 "OK"
-2025/05/02 07:20:33 [INFO] 127.0.0.1:35468 POST /register 201 0 "OK"
-2025/05/02 07:20:33 [INFO] signed certificate with serial number 549021329853689291400208043471801365323052949853
-2025/05/02 07:20:33 [INFO] 127.0.0.1:35480 POST /enroll 201 0 "OK"
-2025/05/02 07:23:23 [INFO] 127.0.0.1:33034 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:38:37 [INFO] 127.0.0.1:35024 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:39:36 [INFO] 127.0.0.1:51736 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:39:36 [INFO] signed certificate with serial number 502783461492828613192495293319861468214420941359
-2025/05/02 07:39:36 [INFO] 127.0.0.1:51750 POST /enroll 201 0 "OK"
-2025/05/02 07:40:21 [INFO] 127.0.0.1:44976 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:40:21 [INFO] signed certificate with serial number 703668354249742392198486283526094112033135317625
-2025/05/02 07:40:21 [INFO] 127.0.0.1:44988 POST /enroll 201 0 "OK"
-2025/05/02 07:45:12 [INFO] 127.0.0.1:60678 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:45:12 [INFO] signed certificate with serial number 52934518106688421475981263238310200402163541291
-2025/05/02 07:45:12 [INFO] 127.0.0.1:60680 POST /enroll 201 0 "OK"
-2025/05/02 07:52:28 [INFO] 127.0.0.1:54976 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 07:52:28 [INFO] signed certificate with serial number 488007091715965311533051002766605608555489380856
-2025/05/02 07:52:28 [INFO] 127.0.0.1:54978 POST /enroll 201 0 "OK"
-2025/05/02 08:03:10 [INFO] 127.0.0.1:43122 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 08:03:10 [INFO] signed certificate with serial number 295785398409928355627010846554990126382671582037
-2025/05/02 08:03:10 [INFO] 127.0.0.1:43126 POST /enroll 201 0 "OK"
-2025/05/02 08:08:20 [INFO] 127.0.0.1:58280 POST /register 201 0 "OK"
-2025/05/02 08:08:20 [INFO] signed certificate with serial number 251077482439085600466098984606605906967781574324
-2025/05/02 08:08:20 [INFO] 127.0.0.1:58296 POST /enroll 201 0 "OK"
-2025/05/02 08:09:16 [INFO] 127.0.0.1:54640 POST /register 409 74 "Identity 'orderer.fabriczakat.local' is already registered"
-2025/05/02 08:09:16 [INFO] signed certificate with serial number 375408875007075018788811298499720869379910054107
-2025/05/02 08:09:16 [INFO] 127.0.0.1:54646 POST /enroll 201 0 "OK"
-2025/05/02 09:11:08 [INFO] 127.0.0.1:35412 POST /register 409 74 "Identity 'ordereradmin' is already registered"
-2025/05/02 09:11:08 [INFO] signed certificate with serial number 703708266931073454405172441608996975112147901133
-2025/05/02 09:11:08 [INFO] 127.0.0.1:35416 POST /enroll 201 0 "OK"
-2025/05/02 09:11:18 [INFO] 127.0.0.1:40502 POST /register 409 74 "Identity 'orderer.fabriczakat.local' is already registered"
-2025/05/02 09:11:18 [INFO] signed certificate with serial number 330769836225372524056439941207764357266010850689
-2025/05/02 09:11:18 [INFO] 127.0.0.1:40508 POST /enroll 201 0 "OK"
+2025/05/04 07:38:17 [INFO] Configuration file location: /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server-config.yaml
+2025/05/04 07:38:17 [INFO] Starting server in home directory: /home/fabricadmin/fabric/fabric-ca-server-orderer
+2025/05/04 07:38:17 [INFO] Server Version: v1.5.13
+2025/05/04 07:38:17 [INFO] Server Levels: &{Identity:2 Affiliation:1 Certificate:1 Credential:1 RAInfo:1 Nonce:1}
+2025/05/04 07:38:17 [WARNING] &{69 The specified CA certificate file /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem does not exist}
+2025/05/04 07:38:17 [INFO] generating key: &{A:ecdsa S:256}
+2025/05/04 07:38:17 [INFO] encoded CSR
+2025/05/04 07:38:17 [INFO] signed certificate with serial number 192648788608961321450025252975527830474675972771
+2025/05/04 07:38:17 [INFO] The CA key and certificate were generated for CA orderer-ca
+2025/05/04 07:38:17 [INFO] The key was stored by BCCSP provider 'SW'
+2025/05/04 07:38:17 [INFO] The certificate is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/ca-cert.pem
+2025/05/04 07:38:17 [INFO] Initialized sqlite3 database at /home/fabricadmin/fabric/fabric-ca-server-orderer/fabric-ca-server.db
+2025/05/04 07:38:17 [INFO] The issuer key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerPublicKey, secret key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerSecretKey
+2025/05/04 07:38:17 [INFO] Idemix issuer revocation public and secret keys were generated for CA 'orderer-ca'
+2025/05/04 07:38:17 [INFO] The revocation key was successfully stored. The public key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/IssuerRevocationPublicKey, private key is at: /home/fabricadmin/fabric/fabric-ca-server-orderer/msp/keystore/IssuerRevocationPrivateKey
+2025/05/04 07:38:17 [INFO] Home directory for default CA: /home/fabricadmin/fabric/fabric-ca-server-orderer
+2025/05/04 07:38:17 [INFO] Operation Server Listening on [::]:9444
+2025/05/04 07:38:17 [INFO] Listening on https://0.0.0.0:7055
+2025/05/04 07:38:25 [INFO] signed certificate with serial number 269665945614793190760135194643126074956789953519
+2025/05/04 07:38:25 [INFO] 127.0.0.1:59086 POST /enroll 201 0 "OK"
+2025/05/04 07:38:27 [INFO] 127.0.0.1:59096 POST /register 201 0 "OK"
+2025/05/04 07:38:27 [INFO] signed certificate with serial number 650791818071799285233903957806772536805248914589
+2025/05/04 07:38:27 [INFO] 127.0.0.1:59110 POST /enroll 201 0 "OK"
+2025/05/04 07:38:29 [INFO] 127.0.0.1:59112 POST /register 201 0 "OK"
+2025/05/04 07:38:30 [INFO] signed certificate with serial number 269615869530455291788429814892566010019015979950
+2025/05/04 07:38:30 [INFO] 127.0.0.1:59122 POST /enroll 201 0 "OK"
+2025/05/04 08:41:56 http: TLS handshake error from 89.248.174.186:43182: tls: first record does not look like a TLS handshake
+2025/05/05 11:40:57 http: TLS handshake error from 83.222.191.130:48254: tls: first record does not look like a TLS handshake
+2025/05/05 18:53:44 http: TLS handshake error from 23.94.186.186:51861: tls: first record does not look like a TLS handshake
+2025/05/06 08:29:19 http: TLS handshake error from 195.178.110.107:57392: client sent an HTTP request to an HTTPS server
+2025/05/06 09:30:23 http: TLS handshake error from 83.222.190.190:41888: tls: first record does not look like a TLS handshake
+2025/05/09 08:28:48 http: TLS handshake error from 195.178.110.107:35864: client sent an HTTP request to an HTTPS server
+2025/05/10 08:33:59 http: TLS handshake error from 45.125.236.120:54614: EOF
+2025/05/11 20:11:14 http: TLS handshake error from 83.222.191.130:45858: tls: first record does not look like a TLS handshake
+2025/05/12 09:38:23 http: TLS handshake error from 195.178.110.107:33792: client sent an HTTP request to an HTTPS server
+2025/05/12 09:38:23 http: TLS handshake error from 195.178.110.107:38556: client sent an HTTP request to an HTTPS server
+2025/05/15 12:04:02 http: TLS handshake error from 195.178.110.107:48342: client sent an HTTP request to an HTTPS server
+2025/05/15 12:04:02 http: TLS handshake error from 195.178.110.107:49920: client sent an HTTP request to an HTTPS server
+2025/05/15 12:04:02 http: TLS handshake error from 195.178.110.107:52670: client sent an HTTP request to an HTTPS server
+2025/05/21 01:15:35 http: TLS handshake error from 195.82.147.141:64194: tls: first record does not look like a TLS handshake
+2025/05/21 11:23:01 http: TLS handshake error from 195.82.147.141:64553: tls: first record does not look like a TLS handshake
+2025/05/21 23:50:22 http: TLS handshake error from 195.82.147.141:64206: tls: first record does not look like a TLS handshake
+2025/05/25 20:51:23 http: TLS handshake error from 165.154.100.58:54242: tls: client offered only unsupported versions: [302]
+2025/05/25 20:51:33 http: TLS handshake error from 165.154.100.58:54256: EOF
+2025/05/25 20:51:53 http: TLS handshake error from 165.154.100.58:36194: EOF
+2025/05/25 20:51:53 http: TLS handshake error from 165.154.100.58:36210: EOF
+2025/05/25 20:51:54 http: TLS handshake error from 165.154.100.58:36226: EOF
+2025/05/25 20:51:54 http: TLS handshake error from 165.154.100.58:36240: tls: no cipher suite supported by both client and server
+2025/05/25 20:51:54 http: TLS handshake error from 165.154.100.58:36250: EOF
+2025/05/25 20:51:54 http: TLS handshake error from 165.154.100.58:42382: tls: client offered only unsupported versions: [302 301]
+2025/05/25 20:51:55 http: TLS handshake error from 165.154.100.58:42386: EOF
+2025/05/25 20:51:56 http: TLS handshake error from 165.154.100.58:42388: EOF
+2025/05/25 20:51:56 http: TLS handshake error from 165.154.100.58:42392: EOF
+2025/05/25 20:51:57 http: TLS handshake error from 165.154.100.58:42398: EOF
+2025/05/27 12:47:23 http: TLS handshake error from 152.32.157.173:48962: EOF
+2025/05/27 12:47:25 http: TLS handshake error from 152.32.157.173:51148: client sent an HTTP request to an HTTPS server
+2025/05/27 12:47:36 http: TLS handshake error from 152.32.157.173:53790: read tcp 128.199.165.67:7055->152.32.157.173:53790: read: connection reset by peer
+2025/05/27 12:47:37 http: TLS handshake error from 152.32.157.173:53832: local error: tls: unexpected message
+2025/05/27 12:47:37 http: TLS handshake error from 152.32.157.173:53906: local error: tls: unexpected message
+2025/05/27 12:47:37 http: TLS handshake error from 152.32.157.173:53974: local error: tls: unexpected message
+2025/05/27 12:47:38 http: TLS handshake error from 152.32.157.173:54052: local error: tls: unexpected message
+2025/05/27 12:47:38 http: TLS handshake error from 152.32.157.173:54128: local error: tls: unexpected message
+2025/05/27 12:47:39 http: TLS handshake error from 152.32.157.173:54240: local error: tls: unexpected message
+2025/05/27 12:47:39 http: TLS handshake error from 152.32.157.173:54376: local error: tls: unexpected message
+2025/05/27 12:47:39 http: TLS handshake error from 152.32.157.173:54524: local error: tls: unexpected message
+2025/05/27 12:47:40 http: TLS handshake error from 152.32.157.173:54726: local error: tls: unexpected message
+2025/05/27 12:47:41 http: TLS handshake error from 152.32.157.173:54910: local error: tls: unexpected message
+2025/05/28 01:45:33 http: TLS handshake error from 106.75.184.142:58574: read tcp 128.199.165.67:7055->106.75.184.142:58574: read: connection timed out

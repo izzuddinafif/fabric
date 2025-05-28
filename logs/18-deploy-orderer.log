@@ -1,0 +1,89 @@
+2025-05-05 07:10:42 - 🚀 Starting script 18-deploy-orderer.sh
+2025-05-05 07:10:42 - 🐳 Orderer container 'orderer.fabriczakat.local' is running. Stopping and removing it...
+time="2025-05-05T07:10:42Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container orderer.fabriczakat.local  Stopping
+ Container orderer.fabriczakat.local  Stopped
+ Container orderer.fabriczakat.local  Removing
+ Container orderer.fabriczakat.local  Removed
+ Network fabric_network  Removing
+ Network fabric_network  Removed
+2025-05-05 07:10:42 - ✅ Existing orderer container stopped and removed.
+2025-05-05 07:10:42 - 🐳 Deploying Orderer node 'orderer.fabriczakat.local' using /home/fabricadmin/fabric/docker/docker-compose-orderer.yaml...
+time="2025-05-05T07:10:42Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network fabric_network  Creating
+ Network fabric_network  Created
+ Container orderer.fabriczakat.local  Creating
+ Container orderer.fabriczakat.local  Created
+ Container orderer.fabriczakat.local  Starting
+ Container orderer.fabriczakat.local  Started
+2025-05-05 07:10:48 - ✅ Orderer container 'orderer.fabriczakat.local' is running.
+2025-05-05 07:10:48 - 🎉 Script 18-deploy-orderer.sh completed successfully.
+2025-05-05 07:26:50 - 🚀 Starting script 18-deploy-orderer.sh
+2025-05-05 07:26:50 - 🐳 Orderer container 'orderer.fabriczakat.local' is running. Stopping and removing it...
+time="2025-05-05T07:26:50Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container orderer.fabriczakat.local  Stopping
+ Container orderer.fabriczakat.local  Stopped
+ Container orderer.fabriczakat.local  Removing
+ Container orderer.fabriczakat.local  Removed
+ Network fabric_network  Removing
+ Network fabric_network  Removed
+2025-05-05 07:26:51 - ✅ Existing orderer container stopped and removed.
+2025-05-05 07:26:51 - 🐳 Deploying Orderer node 'orderer.fabriczakat.local' using /home/fabricadmin/fabric/docker/docker-compose-orderer.yaml...
+time="2025-05-05T07:26:51Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network fabric_network  Creating
+ Network fabric_network  Created
+ Container orderer.fabriczakat.local  Creating
+ Container orderer.fabriczakat.local  Created
+ Container orderer.fabriczakat.local  Starting
+ Container orderer.fabriczakat.local  Started
+2025-05-05 07:26:57 - ✅ Orderer container 'orderer.fabriczakat.local' is running.
+2025-05-05 07:26:57 - 🎉 Script 18-deploy-orderer.sh completed successfully.
+2025-05-05 07:49:44 - 🚀 Starting script 18-deploy-orderer.sh
+2025-05-05 07:49:44 - 🐳 Orderer container 'orderer.fabriczakat.local' is running. Stopping and removing it...
+time="2025-05-05T07:49:44Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container orderer.fabriczakat.local  Stopping
+ Container orderer.fabriczakat.local  Stopped
+ Container orderer.fabriczakat.local  Removing
+ Container orderer.fabriczakat.local  Removed
+ Network fabric_network  Removing
+ Network fabric_network  Removed
+2025-05-05 07:49:44 - ✅ Existing orderer container stopped and removed.
+2025-05-05 07:49:44 - 🐳 Deploying Orderer node 'orderer.fabriczakat.local' using /home/fabricadmin/fabric/docker/docker-compose-orderer.yaml...
+time="2025-05-05T07:49:45Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network fabric_network  Creating
+ Network fabric_network  Created
+ Container orderer.fabriczakat.local  Creating
+ Container orderer.fabriczakat.local  Created
+ Container orderer.fabriczakat.local  Starting
+ Container orderer.fabriczakat.local  Started
+2025-05-05 07:49:50 - ✅ Orderer container 'orderer.fabriczakat.local' is running.
+2025-05-05 07:49:50 - 🎉 Script 18-deploy-orderer.sh completed successfully.
+2025-05-05 08:03:06 - Starting Orderer Deployment Script (18)
+2025-05-05 08:03:06 - 🔎 Checking for Docker and Docker Compose...
+2025-05-05 08:03:06 - ✅ Docker and Docker Compose found.
+2025-05-05 08:03:06 - 🔎 Checking for required artifacts...
+2025-05-05 08:03:06 - ✅ Required artifacts found.
+2025-05-05 08:03:06 - 🧹 Cleaning up previous Orderer deployment (if any)...
+2025-05-05 08:03:06 -   Stopping container orderer.fabriczakat.local...
+orderer.fabriczakat.local
+2025-05-05 08:03:07 -   Container orderer.fabriczakat.local stopped.
+2025-05-05 08:03:07 -   Removing container orderer.fabriczakat.local...
+orderer.fabriczakat.local
+2025-05-05 08:03:07 -   Container orderer.fabriczakat.local removed.
+2025-05-05 08:03:07 -   Checking for existing volumes...
+2025-05-05 08:03:07 -   Volume orderer_ledger does not exist, skipping removal.
+2025-05-05 08:03:07 -   Volume orderer_etcdraft_wal does not exist, skipping removal.
+2025-05-05 08:03:07 -   Volume orderer_etcdraft_snapshot does not exist, skipping removal.
+2025-05-05 08:03:07 -   Checking for network fabric_network...
+2025-05-05 08:03:07 -   Network fabric_network already exists.
+2025-05-05 08:03:07 - ✅ Cleanup complete.
+2025-05-05 08:03:07 - 🚢 Deploying Orderer using Docker Compose...
+time="2025-05-05T08:03:07Z" level=warning msg="/home/fabricadmin/fabric/docker/docker-compose-orderer.yaml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container orderer.fabriczakat.local  Creating
+ Container orderer.fabriczakat.local  Created
+ Container orderer.fabriczakat.local  Starting
+ Container orderer.fabriczakat.local  Started
+2025-05-05 08:03:07 - 🔎 Verifying Orderer deployment...
+2025-05-05 08:03:12 - ✅ Orderer container orderer.fabriczakat.local is running.
+2025-05-05 08:03:12 - 🎉 Orderer Node deployed successfully!
+2025-05-05 08:03:12 - ----------------------------------------
