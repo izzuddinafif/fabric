@@ -1,14 +1,12 @@
 #!/bin/bash
 
-declare -A ORGS=(
-    ["10.104.0.2"]="org1"
-    ["10.104.0.4"]="org2"
-)
+# Source helper scripts
+source "$(dirname "$0")/helper/ssh-utils.sh"
 
 for IP in "${!ORGS[@]}"; do
     ORG="${ORGS[$IP]}"
     BOOTSTRAP_USER="btstrp-${ORG}"
-    BOOTSTRAP_PASS="${ORG}pw"
+    BOOTSTRAP_PASS="${ORG}${BOOTSTRAP_PASS_SUFFIX}"
     MSP_DIR="${ORG}-ca/${BOOTSTRAP_USER}/msp"
     CA_HOST="ca.${ORG}.fabriczakat.local"
     CA_PORT="7054"
@@ -16,21 +14,21 @@ for IP in "${!ORGS[@]}"; do
     
     echo "Processing bootstrap user for $ORG at $IP..."
     
-    # The TLS certificates are on the remote machine, not locally
-    # Check if the certificate exists on the remote machine
+    # Check for remote TLS certificate
     REMOTE_TLS_CERT_PATH="/home/fabricadmin/fabric/fabric-ca-server-${ORG}/tls/cert.pem"
-    echo "  🔎 Checking for remote TLS certificate at $REMOTE_TLS_CERT_PATH on $IP..."
-    TLS_CERT_EXISTS=$(ssh "fabricadmin@$IP" "[ -f $REMOTE_TLS_CERT_PATH ] && echo 'true' || echo 'false'")
-    
-    if [ "$TLS_CERT_EXISTS" = "false" ]; then
+    echo "  🔎 Checking for remote TLS certificate..."
+    if ! verify_remote_file "$IP" "$REMOTE_TLS_CERT_PATH"; then
         echo "  ⛔ Error: TLS certificate not found at $REMOTE_TLS_CERT_PATH on remote machine $IP. Cannot proceed."
         continue
     fi
     echo "  ✅ Remote TLS certificate found."
     
-    # Check if enrollment already exists on the remote machine
+    # Check for existing enrollment
     echo "  🔎 Checking for existing enrollment for $BOOTSTRAP_USER on $IP..."
-    ENROLL_EXISTS=$(ssh "fabricadmin@$IP" "[ -f $HOME_DIR/$MSP_DIR/signcerts/cert.pem ] && [ -f $HOME_DIR/$MSP_DIR/keystore/key.pem ] && echo 'true' || echo 'false'")
+    ENROLL_CHECK_SCRIPT="""
+        [ -f $HOME_DIR/$MSP_DIR/signcerts/cert.pem ] && [ -f $HOME_DIR/$MSP_DIR/keystore/key.pem ] && echo 'true' || echo 'false'
+    """
+    ENROLL_EXISTS=$(ssh_exec "$IP" "$ENROLL_CHECK_SCRIPT")
     
     if [ "$ENROLL_EXISTS" = "true" ]; then
         echo "  ✅ Enrollment for $BOOTSTRAP_USER in $ORG already exists on $IP. Skipping enrollment."
@@ -40,7 +38,7 @@ for IP in "${!ORGS[@]}"; do
     
     echo "🔐 Enrolling bootstrap user $BOOTSTRAP_USER for $ORG at $IP..."
     
-    ssh "fabricadmin@$IP" """
+    ENROLL_SCRIPT="""
 set -e
 
 echo \"  🚀 Starting bootstrap user enrollment process on $IP for $ORG...\"
@@ -48,36 +46,33 @@ echo \"  🚀 Starting bootstrap user enrollment process on $IP for $ORG...\"
 # Create required directories
 echo \"  📁 Ensuring directory exists: $HOME_DIR/${ORG}-ca/${BOOTSTRAP_USER}\"
 mkdir -p $HOME_DIR/${ORG}-ca/${BOOTSTRAP_USER}
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create directory $HOME_DIR/${ORG}-ca/${BOOTSTRAP_USER}\"; exit 1; fi
+if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create directory\"; exit 1; fi
 echo \"  ✅ Directory ensured.\"
 
-# The TLS certificate is already on the remote machine
-TLS_VERIFICATION_CERT=\"$REMOTE_TLS_CERT_PATH\"
-
-# Verify the certificate exists
-echo \"  🔎 Verifying TLS verification certificate: \$TLS_VERIFICATION_CERT\"
-if [ ! -f \"\$TLS_VERIFICATION_CERT\" ]; then
-    echo \"  ⛔ Error: TLS verification certificate not found at \$TLS_VERIFICATION_CERT\"
+# Verify TLS certificate
+echo \"  🔎 Verifying TLS verification certificate: $REMOTE_TLS_CERT_PATH\"
+if [ ! -f \"$REMOTE_TLS_CERT_PATH\" ]; then
+    echo \"  ⛔ Error: TLS verification certificate not found\"
     exit 1
 fi
 echo \"  ✅ TLS verification certificate found.\"
 
-# Run the enrollment command with debug to see more details
+# Enroll bootstrap user
 echo \"  🔐 Enrolling $BOOTSTRAP_USER...\"
 ~/bin/fabric-ca-client enroll -d \\
   --home $HOME_DIR \\
   -u https://$BOOTSTRAP_USER:$BOOTSTRAP_PASS@$CA_HOST:$CA_PORT \\
-  --tls.certfiles \"\$TLS_VERIFICATION_CERT\" \\
+  --tls.certfiles \"$REMOTE_TLS_CERT_PATH\" \\
   --mspdir $MSP_DIR
 if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to enroll $BOOTSTRAP_USER\"; exit 1; fi
 echo \"  ✅ $BOOTSTRAP_USER enrolled successfully.\"
 
-# Rename the private key for consistency
+# Rename private key
 echo \"  📄 Renaming private key...\"
 if [ -d $HOME_DIR/$MSP_DIR/keystore ]; then
     KEY_FILE=\$(find $HOME_DIR/$MSP_DIR/keystore -name \"*_sk\" -type f | head -n 1)
     if [ -z \"\$KEY_FILE\" ]; then
-        echo \"  ⛔ Error: No private key file (*_sk) found in $HOME_DIR/$MSP_DIR/keystore\"
+        echo \"  ⛔ Error: No private key file found in keystore\"
         ls -la $HOME_DIR/$MSP_DIR/keystore
         exit 1
     fi
@@ -85,20 +80,20 @@ if [ -d $HOME_DIR/$MSP_DIR/keystore ]; then
     if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to rename private key\"; exit 1; fi
     echo \"  ✅ Private key renamed successfully.\"
 else
-    echo \"  ⛔ Error: Keystore directory not found after enrollment at $HOME_DIR/$MSP_DIR/keystore\"
+    echo \"  ⛔ Error: Keystore directory not found after enrollment\"
     ls -la $HOME_DIR/$MSP_DIR
     exit 1
 fi
 """
 
-    # Check the exit status of the SSH command
-    if [ $? -eq 0 ]; then
-        echo "✅ Successfully enrolled bootstrap user for $ORG at $IP."
-    else
+    # Execute the enrollment script
+    ssh_exec_script "$IP" "$ENROLL_SCRIPT" "Failed to enroll bootstrap user" || {
         echo "⛔ Failed to enroll bootstrap user for $ORG at $IP. Check logs on the remote machine."
-    fi
+        continue
+    }
+    
+    echo "✅ Successfully enrolled bootstrap user for $ORG at $IP."
     echo "-----------------------------------------------------"
-
 done
 
 echo "🎉 All organization bootstrap users processed."

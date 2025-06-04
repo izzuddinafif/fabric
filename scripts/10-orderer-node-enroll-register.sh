@@ -1,194 +1,201 @@
 #!/bin/bash
+# Script 10: Register and Enroll Orderer Node Identity
+set -e
 
-# Ensure the client config directory exists
-if ! [ -d "$HOME/fabric/fabric-ca-client" ]; then
-    echo "⛔ Directory $HOME/fabric/fabric-ca-client does not exist. Exiting."
-    exit 1
-fi
+# Source the configuration file
+source "$(dirname "$0")/config/orgs-config.sh"
 
-# Ensure the TLS root cert exists
-if ! [ -f "$HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem" ]; then
-    echo "⛔ TLS root certificate $HOME/fabric/fabric-ca-client/tls-root-cert/tls-ca-cert.pem not found. Did you run script 03?"
-    exit 1
-fi
+# Define variables
+CA_CLIENT_HOME="$HOME/fabric/fabric-ca-client"
+TLS_CERT_PATH="$CA_CLIENT_HOME/tls-root-cert"
+ORDERER_CA_PATH="$CA_CLIENT_HOME/orderer-ca"
+TLS_CA_PATH="$CA_CLIENT_HOME/tls-ca"
+ORGANIZATIONS_PATH="$HOME/fabric/organizations"
+ORDERER_ORG_PATH="$ORGANIZATIONS_PATH/ordererOrganizations/${ORDERER_DOMAIN}"
+ORDERER_PATH="$ORDERER_ORG_PATH/orderers/$ORDERER_HOSTNAME"
+NODE_MSP="$ORDERER_PATH/msp"
+TLS_PATH="$ORDERER_PATH/tls"
+CA_PORT=7055
+TLS_PORT=7054
 
-# Ensure the orderer bootstrap user MSP exists (registrar for identity)
-if ! [ -d "$HOME/fabric/fabric-ca-client/orderer-ca/btstrp-orderer/msp" ]; then
-    echo "⛔ Orderer CA bootstrap user MSP not found. Did script 08 run correctly?"
-    exit 1
-fi
+# Function to verify prerequisites
+verify_prerequisites() {
+    local required_dirs=(
+        "$CA_CLIENT_HOME"
+        "$TLS_CERT_PATH"
+        "$ORDERER_CA_PATH/btstrp-orderer/msp"
+        "$TLS_CA_PATH/tlsadmin/msp"
+    )
+    
+    for dir in "${required_dirs[@]}"; do
+        if [ ! -d "$dir" ]; then
+            echo "⛔ Required directory not found: $dir"
+            return 1
+        fi
+    done
+    
+    if [ ! -f "$TLS_CERT_PATH/tls-ca-cert.pem" ]; then
+        echo "⛔ TLS root certificate not found"
+        return 1
+    fi
+    
+    return 0
+}
 
-# Ensure the TLS admin MSP exists (registrar for TLS identity)
-if ! [ -d "$HOME/fabric/fabric-ca-client/tls-ca/tlsadmin/msp" ]; then
-    echo "⛔ TLS admin MSP directory not found. Did script 03 run correctly?"
-    exit 1
-fi
+# Function to create MSP directories
+create_msp_directories() {
+    echo "📁 Creating MSP directory structure..."
+    mkdir -p "$NODE_MSP"/{cacerts,keystore,signcerts,tlscacerts}
+    mkdir -p "$TLS_PATH"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to create MSP directories"
+        return 1
+    fi
+    return 0
+}
 
+# Function to register identities
+register_identities() {
+    # Register node identity with orderer CA
+    echo "🔐 Registering orderer node identity..."
+    ./fabric-ca-client register -d \
+        --id.name "$ORDERER_HOSTNAME" \
+        --id.secret ordererpw \
+        --id.type orderer \
+        --mspdir "$ORDERER_CA_PATH/btstrp-orderer/msp" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        -u "https://ca.orderer.${ORDERER_DOMAIN}:$CA_PORT"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to register orderer node identity"
+        return 1
+    fi
+    
+    # Register TLS identity with TLS CA
+    echo "🔐 Registering orderer node TLS identity..."
+    ./fabric-ca-client register -d \
+        --id.name "$ORDERER_HOSTNAME" \
+        --id.secret ordererpw \
+        -u "https://tls.${ORDERER_DOMAIN}:$TLS_PORT" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        --mspdir "$TLS_CA_PATH/tlsadmin/msp"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to register orderer node TLS identity"
+        return 1
+    fi
+    
+    return 0
+}
 
-MSP_DIR=$HOME/fabric/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp
+# Function to enroll node identity
+enroll_node_identity() {
+    echo "🔐 Enrolling orderer node identity..."
+    ./fabric-ca-client enroll -d \
+        -u "https://$ORDERER_HOSTNAME:ordererpw@ca.orderer.${ORDERER_DOMAIN}:$CA_PORT" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        --mspdir "$NODE_MSP"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to enroll orderer node identity"
+        return 1
+    fi
+    return 0
+}
 
-mkdir -p $MSP_DIR
+# Function to enroll TLS identity
+enroll_tls_identity() {
+    echo "🔐 Enrolling orderer node TLS identity..."
+    ./fabric-ca-client enroll -d \
+        -u "https://$ORDERER_HOSTNAME:ordererpw@tls.${ORDERER_DOMAIN}:$TLS_PORT" \
+        --enrollment.profile tls \
+        --csr.hosts "$ORDERER_HOSTNAME" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        --mspdir "$TLS_PATH"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to enroll orderer node TLS identity"
+        return 1
+    fi
+    return 0
+}
 
-echo "🔐 Registering the orderer node identity (orderer.fabriczakat.local) with the Orderer CA..."
+# Function to rename and organize credentials
+organize_credentials() {
+    echo "🔑 Organizing credentials..."
+    
+    # Rename node identity files
+    local node_key=$(find "$NODE_MSP/keystore/" -type f -name "*_sk")
+    local node_cert=$(find "$NODE_MSP/signcerts/" -type f -name "*.pem")
+    
+    if [ -z "$node_key" ] || [ -z "$node_cert" ]; then
+        echo "⛔ Node credentials not found"
+        return 1
+    fi
+    
+    mv "$node_key" "$NODE_MSP/keystore/orderer-node-key.pem"
+    mv "$node_cert" "$NODE_MSP/signcerts/orderer-node-cert.pem"
+    
+    # Organize TLS files
+    local tls_key=$(find "$TLS_PATH/keystore/" -type f -name "*_sk")
+    local tls_cert="$TLS_PATH/signcerts/cert.pem"
+    
+    if [ ! -f "$tls_cert" ] || [ -z "$tls_key" ]; then
+        echo "⛔ TLS credentials not found"
+        return 1
+    fi
+    
+    cp "$tls_cert" "$TLS_PATH/server.crt"
+    cp "$tls_key" "$TLS_PATH/server.key"
+    cp "$TLS_CERT_PATH/tls-ca-cert.pem" "$TLS_PATH/ca.crt"
+    cp "$TLS_PATH/ca.crt" "$NODE_MSP/tlscacerts/tls-ca-cert.pem"
+    
+    return 0
+}
 
-cd $HOME/fabric/fabric-ca-client
-# Set Fabric CA Client home directory
-export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
+# Function to setup MSP configuration
+setup_msp_config() {
+    echo "⚙️ Setting up MSP configuration..."
+    local cacert=$(ls "$NODE_MSP/cacerts"/*.pem | head -n 1)
+    
+    if [ ! -f "$cacert" ]; then
+        echo "⛔ CA certificate not found"
+        return 1
+    fi
+    
+    ../scripts/helper/create-config-yaml.sh "$cacert" "$NODE_MSP"
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to create MSP config"
+        return 1
+    fi
+    return 0
+}
 
-# Register the orderer node identity
-./fabric-ca-client register -d \
-  --id.name orderer.fabriczakat.local \
-  --id.secret ordererpw \
-  --id.type orderer \
-  --mspdir orderer-ca/btstrp-orderer/msp \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  -u https://ca.orderer.fabriczakat.local:7055
-if [ $? -ne 0 ]; then echo "⛔ Failed to register orderer node identity."; exit 1; fi
-echo "✅ Orderer node identity registered successfully."
+echo "🚀 Starting orderer node enrollment process..."
 
-# Enroll the orderer node identity
-echo "🔐 Enrolling the orderer node identity..."
-./fabric-ca-client enroll -d \
-  -u https://orderer.fabriczakat.local:ordererpw@ca.orderer.fabriczakat.local:7055 \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --mspdir $MSP_DIR
-if [ $? -ne 0 ]; then echo "⛔ Failed to enroll orderer node identity."; exit 1; fi
-echo "✅ Orderer node identity enrolled successfully."
+# Change to CA client directory
+cd "$CA_CLIENT_HOME"
+export FABRIC_CA_CLIENT_HOME="$PWD"
 
-# Rename the private key and cert files
-echo "📄 Renaming orderer node identity key and certificate..."
-NODE_KEY_FILE=$(find $MSP_DIR/keystore/ -type f -name "*_sk")
-NODE_CERT_FILE=$(find $MSP_DIR/signcerts/ -type f -name "*.pem")
+# Execute the process
+verify_prerequisites || exit 1
+create_msp_directories || exit 1
+register_identities || exit 1
+enroll_node_identity || exit 1
+enroll_tls_identity || exit 1
+organize_credentials || exit 1
+setup_msp_config || exit 1
 
-if [ -z "$NODE_KEY_FILE" ]; then echo "⛔ Orderer node private key not found in $MSP_DIR/keystore/"; exit 1; fi
-if [ -z "$NODE_CERT_FILE" ]; then echo "⛔ Orderer node certificate not found in $MSP_DIR/signcerts/"; exit 1; fi
+echo "🎉 Orderer node setup completed successfully!"
+echo ""
+echo "Generated artifacts:"
+echo "- Node MSP: $NODE_MSP"
+echo "- TLS Path: $TLS_PATH"
+echo ""
+echo "Next Steps:"
+echo "1. Deploy the orderer node"
+echo "2. Configure the orderer service"
+echo "----------------------------------------"
 
-mv $NODE_KEY_FILE $MSP_DIR/keystore/orderer-node-key.pem
-mv $NODE_CERT_FILE $MSP_DIR/signcerts/orderer-node-cert.pem
-if [ $? -ne 0 ]; then echo "⛔ Failed to rename orderer node key/cert files."; exit 1; fi
-echo "✅ Orderer node key and certificate renamed successfully."
-
-
-# create a config.yaml file for the orderer node identity
-echo "📄 Creating config.yaml for orderer node MSP..."
-CACERT=$(ls "$MSP_DIR/cacerts"/*.pem | head -n 1)
-
-if [ -z "$CACERT" ]; then
-  echo "⛔ Error: No CA cert .pem found in $MSP_DIR/cacerts"
-  exit 1
-fi
-
-# create the config.yaml file
-./../scripts/helper/create-config-yaml.sh $CACERT $MSP_DIR
-if [ $? -ne 0 ]; then echo "⛔ Failed to create config.yaml for orderer node MSP."; exit 1; fi
-echo "✅ config.yaml for orderer node MSP created successfully."
-
-
-# Register and enroll the orderer node's TLS identity
-ORDERER_TLS_DIR=$HOME/fabric/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/tls
-
-mkdir -p $ORDERER_TLS_DIR
-
-echo "🔐 Registering orderer node TLS identity..."
-./fabric-ca-client register -d \
-  --id.name orderer.fabriczakat.local \
-  --id.secret ordererpw \
-  -u https://tls.fabriczakat.local:7054 \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --mspdir tls-ca/tlsadmin/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to register orderer node TLS identity."; exit 1; fi
-echo "✅ Orderer node TLS identity registered successfully."
-
-echo "🔐 Enrolling orderer node TLS identity..."
-./fabric-ca-client enroll -d \
-  -u https://orderer.fabriczakat.local:ordererpw@tls.fabriczakat.local:7054 \
-  --enrollment.profile tls \
-  --csr.hosts orderer.fabriczakat.local \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --mspdir $ORDERER_TLS_DIR
-if [ $? -ne 0 ]; then echo "⛔ Failed to enroll orderer node TLS identity."; exit 1; fi
-echo "✅ Orderer node TLS identity enrolled successfully."
-
-# Rename TLS certs as expected by Fabric
-echo "📄 Renaming and copying orderer node TLS files..."
-TLS_KEY_FILE=$(find $ORDERER_TLS_DIR/keystore/ -type f -name "*_sk")
-TLS_CERT_FILE=$ORDERER_TLS_DIR/signcerts/cert.pem
-TLS_CA_CERT_FILE=tls-root-cert/tls-ca-cert.pem
-
-if [ ! -f "$TLS_CERT_FILE" ]; then echo "⛔ Orderer node TLS certificate not found: $TLS_CERT_FILE"; exit 1; fi
-if [ -z "$TLS_KEY_FILE" ]; then echo "⛔ Orderer node TLS private key not found in $ORDERER_TLS_DIR/keystore/"; exit 1; fi
-if [ ! -f "$TLS_CA_CERT_FILE" ]; then echo "⛔ TLS CA root certificate not found: $TLS_CA_CERT_FILE"; exit 1; fi
-
-cp $TLS_CERT_FILE $ORDERER_TLS_DIR/server.crt
-cp $TLS_KEY_FILE $ORDERER_TLS_DIR/server.key
-cp $TLS_CA_CERT_FILE $ORDERER_TLS_DIR/ca.crt
-if [ $? -ne 0 ]; then echo "⛔ Failed to copy/rename orderer node TLS files."; exit 1; fi
-echo "✅ Orderer node TLS files renamed and copied successfully."
-
-# Create tlscacerts directory in orderer node's MSP and copy the TLS CA cert
-echo "📄 Copying TLS CA cert to orderer node MSP..."
-mkdir -p $MSP_DIR/tlscacerts
-cp $ORDERER_TLS_DIR/ca.crt $MSP_DIR/tlscacerts/tls-ca-cert.pem
-if [ $? -ne 0 ]; then echo "⛔ Failed to copy TLS CA cert to orderer node MSP."; exit 1; fi
-echo "✅ TLS CA cert copied to orderer node MSP successfully."
-
-echo "✅ Orderer node identity and TLS setup complete."
-echo "ℹ️ Check the output above for success or failure messages from the fabric-ca-client."
-
-# Final structure for our orderer node (1 orderer, 1 admin)
-
-# organizations/
-# └── ordererOrganizations/
-#     └── fabriczakat.local/
-#         ├── msp/                                 ← Org-wide MSP
-#         │   ├── cacerts/
-#         │   │   └── orderer-ca-cert.pem          ← Root CA cert (identity)
-#         │   ├── config.yaml                      ← NodeOU role mapping
-#         │   └── tlscacerts/
-#         │       └── tls-ca-cert.pem              ← TLS CA cert
-#         │
-#         ├── orderers/
-#         │   └── orderer.fabriczakat.local/
-#         │       ├── msp/                         ← Orderer node's identity MSP
-#         │       │   ├── cacerts/
-#         │       │   │   └── ca-orderer-fabriczakat-local-7055.pem
-#         │       │   ├── config.yaml
-#         │       │   ├── keystore/
-#         │       │   │   └── orderer-node-key.pem
-#         │       │   ├── signcerts/
-#         │       │   │   └── orderer-node-cert.pem
-#         │       │   ├── tlscacerts/
-#         │       │   │   └── tls-ca-cert.pem
-#         │       │   ├── IssuerPublicKey
-#         │       │   ├── IssuerRevocationPublicKey
-#         │       │   └── user/
-#         │       │
-#         │       └── tls/                         ← Orderer's TLS certs
-#         │           ├── server.crt               ← TLS cert
-#         │           ├── server.key               ← TLS private key
-#         │           ├── ca.crt                   ← TLS CA cert
-#         │           ├── signcerts/
-#         │           │   └── cert.pem             ← Raw enrolled cert
-#         │           ├── keystore/
-#         │           │   └── <TLS private key>    ← Raw key
-#         │           ├── tlscacerts/
-#         │           │   └── tls-tls-fabriczakat-local-7054.pem (optional)
-#         │           ├── IssuerPublicKey
-#         │           ├── IssuerRevocationPublicKey
-#         │           └── user/
-#         │
-#         └── users/
-#             └── Admin@fabriczakat.local/
-#                 └── msp/                         ← Admin identity MSP
-#                     ├── cacerts/
-#                     │   └── ca-orderer-fabriczakat-local-7055.pem
-#                     ├── config.yaml
-#                     ├── keystore/
-#                     │   └── orderer-admin-key.pem
-#                     ├── signcerts/
-#                     │   └── orderer-admin-cert.pem
-#                     ├── tlscacerts/
-#                     │   └── tls-ca-cert.pem
-#                     ├── IssuerPublicKey
-#                     ├── IssuerRevocationPublicKey
-#                     └── user/
+exit 0

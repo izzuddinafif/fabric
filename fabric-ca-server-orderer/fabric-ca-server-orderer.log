@@ -66,3 +66,45 @@
 2025/05/27 12:47:40 http: TLS handshake error from 152.32.157.173:54726: local error: tls: unexpected message
 2025/05/27 12:47:41 http: TLS handshake error from 152.32.157.173:54910: local error: tls: unexpected message
 2025/05/28 01:45:33 http: TLS handshake error from 106.75.184.142:58574: read tcp 128.199.165.67:7055->106.75.184.142:58574: read: connection timed out
+2025/05/28 16:23:55 http: TLS handshake error from 83.222.191.130:34076: tls: first record does not look like a TLS handshake
+2025/05/31 04:29:45 http: TLS handshake error from 104.200.28.212:41844: EOF
+2025/05/31 05:02:45 http: TLS handshake error from 104.200.28.212:56426: unexpected EOF
+2025/05/31 05:02:46 http: TLS handshake error from 104.200.28.212:45402: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:46 http: TLS handshake error from 104.200.28.212:45422: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:47 http: TLS handshake error from 104.200.28.212:45426: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:47 http: TLS handshake error from 104.200.28.212:45434: tls: unsupported SSLv2 handshake received
+2025/05/31 05:03:41 http: TLS handshake error from 104.200.28.212:53974: tls: unsupported SSLv2 handshake received
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:37106: tls: client offered only unsupported versions: []
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:37096: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:37076: read tcp 128.199.165.67:7055->104.200.28.212:37076: read: connection reset by peer
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:37120: client sent an HTTP request to an HTTPS server
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:37136: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:53 http: TLS handshake error from 104.200.28.212:37138: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:37144: EOF
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:58850: tls: client offered only unsupported versions: [302 301]
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:58828: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:58820: EOF
+2025/05/31 05:03:55 http: TLS handshake error from 104.200.28.212:58840: EOF
+2025/05/31 05:03:56 http: TLS handshake error from 104.200.28.212:58896: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:56 http: TLS handshake error from 104.200.28.212:58864: EOF
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:58906: EOF
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:58934: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:58952: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:58936: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:58966: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:58982: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:58986: EOF
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:59002: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:59014: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:59018: EOF
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:59022: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:59026: tls: client offered only unsupported versions: [301]
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:59048: tls: no cipher suite supported by both client and server
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:59032: EOF
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:59062: EOF
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:59074: EOF
+2025/05/31 05:04:01 http: TLS handshake error from 104.200.28.212:59092: EOF
+2025/05/31 05:04:02 http: TLS handshake error from 104.200.28.212:59104: read tcp 128.199.165.67:7055->104.200.28.212:59104: read: connection reset by peer
+2025/05/31 11:19:28 http: TLS handshake error from 83.222.191.130:39198: tls: first record does not look like a TLS handshake
+2025/06/03 09:03:07 http: TLS handshake error from 89.248.174.186:37016: tls: first record does not look like a TLS handshake
+2025/06/03 13:28:30 http: TLS handshake error from 83.222.191.130:41958: tls: first record does not look like a TLS handshake

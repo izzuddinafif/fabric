@@ -1,68 +1,156 @@
 #!/bin/bash
-cd $HOME/fabric/fabric-ca-server-orderer
-export FABRIC_CA_CLIENT_HOME=$HOME/fabric/fabric-ca-client
+# Script 06: Start Orderer CA Server
+set -e
 
-# Check if the fabric-ca-server is already running
-if [ -f fabric-ca-server-orderer.pid ]; then
-    PID=$(cat fabric-ca-server-orderer.pid)
-    if ps -p $PID > /dev/null; then
-        echo "✅ Orderer CA server is already running with PID $PID. Exiting."
-        exit 0 # Changed exit 1 to 0 as it's not an error
+# Source the configuration file
+source "$(dirname "$0")/config/orgs-config.sh"
+
+# Define variables
+CA_HOME="$HOME/fabric/fabric-ca-server-orderer"
+PID_FILE="$CA_HOME/fabric-ca-server-orderer.pid"
+LOG_FILE="$CA_HOME/fabric-ca-server-orderer.log"
+CA_PORT=7055
+OPS_PORT=9444
+
+# Function to check if a port is in use
+check_port() {
+    local port=$1
+    if lsof -i ":$port" > /dev/null; then
+        echo "⚠️ Port $port is in use. Attempting to free it..."
+        sudo kill $(lsof -t -i:$port) || true
+        sleep 2
+        if lsof -i ":$port" > /dev/null; then
+            echo "⛔ Failed to free port $port"
+            return 1
+        fi
     fi
-fi
+    return 0
+}
 
-# check if the port 7055 and 9444 are already in use and kill the process if it is
-if lsof -i :7055 > /dev/null; then
-    echo "Port 7055 is already in use. Killing process."
-    sudo kill $(lsof -t -i:7055)
-fi
-if lsof -i :9444 > /dev/null; then
-    echo "Port 9444 is already in use. Killing process."
-    sudo kill $(lsof -t -i:9444)
-fi
+# Function to verify CA server is running
+verify_ca_running() {
+    local pid=$1
+    local count=0
+    local max_attempts=10
+    
+    while [ $count -lt $max_attempts ]; do
+        if ! ps -p $pid > /dev/null; then
+            echo "⛔ CA server process died"
+            if [ -f "$LOG_FILE" ]; then
+                echo "Last few log lines:"
+                tail -n 5 "$LOG_FILE"
+            fi
+            return 1
+        fi
+        
+        # Check if server is responding
+        if curl -sk https://localhost:$CA_PORT/cainfo > /dev/null 2>&1; then
+            echo "✅ CA server is responding on port $CA_PORT"
+            return 0
+        fi
+        
+        echo "⏳ Waiting for CA server to start... (attempt $((count + 1))/$max_attempts)"
+        sleep 2
+        count=$((count + 1))
+    done
+    
+    echo "⛔ CA server failed to respond within expected time"
+    return 1
+}
 
-# Edit the fabric-ca-server-config.yaml file
-if ! command -v yq &> /dev/null
-then
-    echo "yq could not be found, installing..."
-    sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-    sudo chmod +x /usr/local/bin/yq
+# Function to verify and install yq
+ensure_yq_installed() {
     if ! command -v yq &> /dev/null; then
-        echo "⛔ Failed to install yq. Exiting."
-        exit 1
+        echo "📦 yq not found, installing..."
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+        if ! command -v yq &> /dev/null; then
+            echo "⛔ Failed to install yq"
+            return 1
+        fi
+        echo "✅ yq installed successfully"
     fi
-    echo "✅ yq installed successfully."
-fi
+    return 0
+}
 
-if [[ $(yq eval '.tls.enabled' fabric-ca-server-config.yaml) == "false" ]]; then
-    echo "⚙️ Configuring Orderer CA server (fabric-ca-server-config.yaml)..."
-    yq eval '.port = 7055' -i fabric-ca-server-config.yaml
-    yq eval '.tls.enabled = true'                -i fabric-ca-server-config.yaml
-    yq eval '.tls.certfile = "tls/cert.pem"'     -i fabric-ca-server-config.yaml
-    yq eval '.tls.keyfile = "tls/key.pem"'      -i fabric-ca-server-config.yaml
-    yq eval '.ca.name = "orderer-ca"'            -i fabric-ca-server-config.yaml
-    yq eval '.operations.listenAddress = "0.0.0.0:9444"' \
-                                                -i fabric-ca-server-config.yaml
-    yq eval '.csr.hosts = ["localhost", "ca.orderer.fabriczakat.local"]' -i fabric-ca-server-config.yaml
-    yq eval '.csr.cn = "orderer-ca"' -i fabric-ca-server-config.yaml
+# Function to update CA configuration
+update_ca_config() {
+    echo "⚙️ Configuring Orderer CA server..."
+    yq eval '
+        .port = 7055 |
+        .tls.enabled = true |
+        .tls.certfile = "tls/cert.pem" |
+        .tls.keyfile = "tls/key.pem" |
+        .ca.name = "orderer-ca" |
+        .operations.listenAddress = "0.0.0.0:9444" |
+        .csr.hosts = ["localhost", "ca.'$ORDERER_HOSTNAME'"] |
+        .csr.cn = "orderer-ca" |
+        .csr.names[0].C = "ID" |
+        .csr.names[0].ST = "East Java" |
+        .csr.names[0].L = "Surabaya" |
+        .csr.names[0].O = "YDSF"
+    ' -i fabric-ca-server-config.yaml
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to update CA configuration"
+        return 1
+    fi
+    echo "✅ CA configuration updated successfully"
+    return 0
+}
 
-    yq eval '.csr.names[0].C = "ID" | .csr.names[0].ST = "East Java" | .csr.names[0].L = "Surabaya" | .csr.names[0].O = "YDSF"' -i fabric-ca-server-config.yaml
-    rm -rf msp/ ca-cert.pem # remove old (default) CA certs or enrolment CA (NOT TLS Cert) and keys (MSP folder) and get a new one after starting the server
-    echo "✅ Orderer CA server configuration updated."
-fi
+echo "🚀 Starting Orderer CA Server..."
 
-# start the orderer CA server
-echo "🚀 Starting Orderer CA server..."
-nohup ./fabric-ca-server start >> fabric-ca-server-orderer.log 2>&1 &
-PID=$!
-echo $PID > fabric-ca-server-orderer.pid
-sleep 2 # Give server time to start
-
-if ps -p $PID > /dev/null; then
-    echo "✅ Orderer CA server started successfully with PID $PID."
-    echo "📄 Orderer CA server logs are being written to fabric-ca-server-orderer.log"
-else
-    echo "⛔ Failed to start Orderer CA server. Check logs in fabric-ca-server-orderer.log."
-    rm fabric-ca-server-orderer.pid # Remove pid file if server failed to start
+# Check if we're in the right directory
+if [ ! -d "$CA_HOME" ]; then
+    echo "⛔ Orderer CA directory not found: $CA_HOME"
     exit 1
 fi
+cd "$CA_HOME"
+
+# Check if server is already running
+if [ -f "$PID_FILE" ]; then
+    OLD_PID=$(cat "$PID_FILE")
+    if ps -p $OLD_PID > /dev/null; then
+        echo "✅ Orderer CA server is already running with PID $OLD_PID"
+        exit 0
+    else
+        echo "🗑️ Removing stale PID file"
+        rm "$PID_FILE"
+    fi
+fi
+
+# Check and free required ports
+echo "🔍 Checking required ports..."
+check_port $CA_PORT || exit 1
+check_port $OPS_PORT || exit 1
+
+# Install yq if needed and update configuration
+ensure_yq_installed || exit 1
+
+# Update configuration if needed
+if [[ $(yq eval '.tls.enabled' fabric-ca-server-config.yaml) == "false" ]]; then
+    update_ca_config || exit 1
+    
+    # Clean up old certificates
+    echo "🧹 Cleaning up old certificates..."
+    rm -rf msp/ ca-cert.pem
+fi
+
+# Start the CA server
+echo "▶️ Starting Orderer CA server..."
+nohup ./fabric-ca-server start >> "$LOG_FILE" 2>&1 &
+PID=$!
+echo $PID > "$PID_FILE"
+
+# Verify server started successfully
+if verify_ca_running $PID; then
+    echo "🎉 Orderer CA server started successfully!"
+    echo "📋 Logs are being written to: $LOG_FILE"
+    echo "🔍 Monitor logs with: tail -f $LOG_FILE"
+else
+    echo "⛔ Failed to start Orderer CA server"
+    exit 1
+fi
+
+exit 0

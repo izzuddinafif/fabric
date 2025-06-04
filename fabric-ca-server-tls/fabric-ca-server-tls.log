@@ -96,3 +96,78 @@
 2025/05/27 13:07:03 http: TLS handshake error from 206.168.34.45:59596: tls: client offered only unsupported versions: [301]
 2025/05/27 13:07:05 http: TLS handshake error from 206.168.34.45:59634: tls: client offered only unsupported versions: []
 2025/05/27 13:07:14 http: TLS handshake error from 206.168.34.45:59866: client sent an HTTP request to an HTTPS server
+2025/05/28 16:38:25 http: TLS handshake error from 83.222.191.130:33842: tls: first record does not look like a TLS handshake
+2025/05/29 04:11:38 http: TLS handshake error from 206.168.34.209:53056: tls: client offered only unsupported versions: [302 301]
+2025/05/29 04:11:43 http: TLS handshake error from 206.168.34.209:46432: tls: client offered only unsupported versions: [301]
+2025/05/29 04:11:48 http: TLS handshake error from 206.168.34.209:46454: tls: client offered only unsupported versions: []
+2025/05/29 04:12:36 http: TLS handshake error from 206.168.34.209:41196: client sent an HTTP request to an HTTPS server
+2025/05/29 06:01:51 http: TLS handshake error from 206.168.34.45:34536: read tcp 128.199.165.67:7054->206.168.34.45:34536: read: connection reset by peer
+2025/05/29 06:02:16 http: TLS handshake error from 206.168.34.45:40440: tls: client offered only unsupported versions: [302 301]
+2025/05/29 06:02:18 http: TLS handshake error from 206.168.34.45:40460: tls: client offered only unsupported versions: [301]
+2025/05/29 06:02:23 http: TLS handshake error from 206.168.34.45:38676: tls: client offered only unsupported versions: []
+2025/05/29 06:02:35 http: TLS handshake error from 206.168.34.45:43200: client sent an HTTP request to an HTTPS server
+2025/05/30 13:21:35 http: TLS handshake error from 167.94.138.60:50782: tls: client offered only unsupported versions: [302 301]
+2025/05/30 13:21:41 http: TLS handshake error from 167.94.138.60:52396: tls: client offered only unsupported versions: [301]
+2025/05/30 13:21:45 http: TLS handshake error from 167.94.138.60:52422: tls: client offered only unsupported versions: []
+2025/05/30 13:22:26 http: TLS handshake error from 167.94.138.60:49636: client sent an HTTP request to an HTTPS server
+2025/05/31 04:03:05 http: TLS handshake error from 104.200.28.212:46598: EOF
+2025/05/31 05:02:45 http: TLS handshake error from 104.200.28.212:33002: unexpected EOF
+2025/05/31 05:02:46 http: TLS handshake error from 104.200.28.212:57988: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:46 http: TLS handshake error from 104.200.28.212:58002: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:47 http: TLS handshake error from 104.200.28.212:58016: client sent an HTTP request to an HTTPS server
+2025/05/31 05:02:47 http: TLS handshake error from 104.200.28.212:58026: tls: unsupported SSLv2 handshake received
+2025/05/31 05:03:41 http: TLS handshake error from 104.200.28.212:36738: tls: unsupported SSLv2 handshake received
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:40424: read tcp 128.199.165.67:7054->104.200.28.212:40424: read: connection reset by peer
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:40438: tls: client offered only unsupported versions: [302 301]
+2025/05/31 05:03:52 http: TLS handshake error from 104.200.28.212:40458: client sent an HTTP request to an HTTPS server
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:40476: EOF
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:50270: tls: client offered only unsupported versions: []
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:50264: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:54 http: TLS handshake error from 104.200.28.212:50260: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:55 http: TLS handshake error from 104.200.28.212:50244: EOF
+2025/05/31 05:03:56 http: TLS handshake error from 104.200.28.212:50320: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:56 http: TLS handshake error from 104.200.28.212:50336: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:50290: EOF
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:50376: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:57 http: TLS handshake error from 104.200.28.212:50398: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50384: EOF
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50456: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50422: EOF
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50442: EOF
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50478: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50480: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:58 http: TLS handshake error from 104.200.28.212:50474: EOF
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:50510: tls: no cipher suite supported by both client and server
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:50526: tls: client offered only unsupported versions: [301]
+2025/05/31 05:03:59 http: TLS handshake error from 104.200.28.212:50496: EOF
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:50530: EOF
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:50550: tls: client offered only unsupported versions: [301]
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:50536: tls: no cipher suite supported by both client and server
+2025/05/31 05:04:00 http: TLS handshake error from 104.200.28.212:50566: EOF
+2025/05/31 05:04:01 http: TLS handshake error from 104.200.28.212:50572: tls: no cipher suite supported by both client and server
+2025/06/01 01:56:56 http: TLS handshake error from 206.168.34.198:36430: EOF
+2025/06/01 01:57:46 http: TLS handshake error from 162.142.125.203:39846: tls: client offered only unsupported versions: [302 301]
+2025/06/01 01:57:49 http: TLS handshake error from 162.142.125.203:39868: tls: client offered only unsupported versions: [301]
+2025/06/01 01:57:53 http: TLS handshake error from 162.142.125.203:42850: tls: client offered only unsupported versions: []
+2025/06/01 01:58:15 http: TLS handshake error from 162.142.125.203:60430: client sent an HTTP request to an HTTPS server
+2025/06/01 15:40:41 http: TLS handshake error from 206.168.34.216:59104: EOF
+2025/06/01 15:40:42 http: TLS handshake error from 206.168.34.216:59106: EOF
+2025/06/01 15:40:43 http: TLS handshake error from 206.168.34.216:47160: EOF
+2025/06/01 15:40:43 http: TLS handshake error from 206.168.34.216:47166: tls: no cipher suite supported by both client and server
+2025/06/01 15:40:44 http: TLS handshake error from 206.168.34.216:47170: EOF
+2025/06/01 15:40:45 http: TLS handshake error from 206.168.34.216:47186: tls: client offered only unsupported versions: [302 301]
+2025/06/01 15:40:46 http: TLS handshake error from 206.168.34.216:47190: EOF
+2025/06/01 15:40:47 http: TLS handshake error from 206.168.34.216:47192: EOF
+2025/06/01 15:40:48 http: TLS handshake error from 206.168.34.216:47194: EOF
+2025/06/01 15:40:49 http: TLS handshake error from 206.168.34.216:47206: EOF
+2025/06/02 16:24:55 http: TLS handshake error from 167.94.138.175:58174: tls: client offered only unsupported versions: [302 301]
+2025/06/02 16:25:00 http: TLS handshake error from 167.94.138.175:58184: tls: client offered only unsupported versions: [301]
+2025/06/02 16:25:08 http: TLS handshake error from 167.94.138.175:44546: tls: client offered only unsupported versions: []
+2025/06/02 16:25:51 http: TLS handshake error from 167.94.138.175:42392: client sent an HTTP request to an HTTPS server
+2025/06/02 16:27:23 http: TLS handshake error from 167.94.138.175:35668: read tcp 128.199.165.67:7054->167.94.138.175:35668: read: connection reset by peer
+2025/06/03 09:48:51 http: TLS handshake error from 89.248.174.186:55654: tls: first record does not look like a TLS handshake
+2025/06/04 03:36:41 http: TLS handshake error from 167.94.138.118:34994: read tcp 128.199.165.67:7054->167.94.138.118:34994: read: connection reset by peer
+2025/06/04 03:36:59 http: TLS handshake error from 167.94.138.118:43904: tls: client offered only unsupported versions: [302 301]
+2025/06/04 03:37:10 http: TLS handshake error from 167.94.138.118:37274: tls: client offered only unsupported versions: [301]
+2025/06/04 03:37:15 http: TLS handshake error from 167.94.138.118:57062: tls: client offered only unsupported versions: []
+2025/06/04 03:38:11 http: TLS handshake error from 167.94.138.118:45222: client sent an HTTP request to an HTTPS server

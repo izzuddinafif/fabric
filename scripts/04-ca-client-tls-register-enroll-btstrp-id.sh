@@ -1,142 +1,147 @@
 #!/bin/bash
-# IMPORTANT SCRIPT!
+# Script 04: Register and Enroll Bootstrap Identities with TLS CA
+set -e
 
-# Make sure the directory exists before changing to it
-if [ ! -d "$HOME/fabric/fabric-ca-client" ]; then
-    echo "Directory $HOME/fabric/fabric-ca-client/ does not exist."
-    echo "Creating directory..."
-    mkdir -p $HOME/fabric/fabric-ca-client/
-fi
+# Source the configuration file
+source "$(dirname "$0")/config/orgs-config.sh"
 
-cd $HOME/fabric/fabric-ca-client/
-export FABRIC_CA_CLIENT_HOME=$PWD
+# Define variables
+CA_CLIENT_HOME="$HOME/fabric/fabric-ca-client"
+TLS_CERT_PATH="$CA_CLIENT_HOME/tls-root-cert"
+TLS_ADMIN_MSP="$CA_CLIENT_HOME/tls-ca/tlsadmin/msp"
+CA_HOST="tls-ca.${ORDERER_DOMAIN}"
+CA_PORT=7054
 
-# Ensure fabric-ca-client binary exists
-if [ ! -x "$FABRIC_CA_CLIENT_HOME/fabric-ca-client" ]; then
-    if [ -x "$HOME/fabric/bin/fabric-ca-client" ]; then
-        cp $HOME/fabric/bin/fabric-ca-client $FABRIC_CA_CLIENT_HOME/
-    elif [ -x "$HOME/bin/fabric-ca-client" ]; then
-        cp $HOME/bin/fabric-ca-client $FABRIC_CA_CLIENT_HOME/
-    else
-        echo "⛔ Error: fabric-ca-client binary not found."
-        exit 1
+# Bootstrap users configuration
+declare -A BOOTSTRAP_USERS=(
+    ["rcaadmin-org1"]="org1pw"
+    ["rcaadmin-org2"]="org2pw"
+    ["rcaadmin-orderer"]="ordererpw"
+)
+
+# Function to verify directory and file existence
+verify_prerequisites() {
+    local dirs=("$CA_CLIENT_HOME" "$TLS_CERT_PATH" "$TLS_ADMIN_MSP")
+    
+    for dir in "${dirs[@]}"; do
+        if [ ! -d "$dir" ]; then
+            echo "⛔ Required directory not found: $dir"
+            return 1
+        fi
+    done
+    
+    if [ ! -f "$TLS_CERT_PATH/tls-ca-cert.pem" ]; then
+        echo "⛔ TLS CA certificate not found"
+        return 1
     fi
-fi
-
-# Ensure TLS root certificate exists
-if [ ! -d "$FABRIC_CA_CLIENT_HOME/tls-root-cert" ]; then
-    mkdir -p $FABRIC_CA_CLIENT_HOME/tls-root-cert
-fi
-
-if [ ! -f "$FABRIC_CA_CLIENT_HOME/tls-root-cert/tls-ca-cert.pem" ]; then
-    if [ -f "$HOME/fabric/fabric-ca-server-tls/ca-cert.pem" ]; then
-        cp $HOME/fabric/fabric-ca-server-tls/ca-cert.pem $FABRIC_CA_CLIENT_HOME/tls-root-cert/tls-ca-cert.pem
-    else
-        echo "⛔ Error: TLS CA certificate not found."
-        exit 1
+    
+    if [ ! -f "$CA_CLIENT_HOME/fabric-ca-client" ]; then
+        echo "⛔ fabric-ca-client binary not found"
+        return 1
     fi
-fi
+    
+    return 0
+}
 
-# Ensure TLS admin MSP directory exists (required for register command)
-if [ ! -d "$FABRIC_CA_CLIENT_HOME/tls-ca/tlsadmin/msp" ]; then
-    echo "⛔ Error: TLS admin MSP directory not found. Script 03 may not have completed successfully."
-    exit 1
-fi
+# Function to register a bootstrap user
+register_bootstrap_user() {
+    local username=$1
+    local password=$2
+    
+    echo "🔐 Registering $username..."
+    ./fabric-ca-client register -d \
+        --id.name "$username" \
+        --id.secret "$password" \
+        -u "https://$CA_HOST:$CA_PORT" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        --mspdir "$TLS_ADMIN_MSP"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to register $username"
+        return 1
+    fi
+    echo "✅ $username registered successfully"
+    return 0
+}
 
-# Create tls-ca directory if it doesn't exist
-if [ ! -d "$FABRIC_CA_CLIENT_HOME/tls-ca" ]; then
-    mkdir -p $FABRIC_CA_CLIENT_HOME/tls-ca
-fi
+# Function to enroll a bootstrap user
+enroll_bootstrap_user() {
+    local username=$1
+    local password=$2
+    local host_suffix=$3
+    
+    echo "🔐 Enrolling $username..."
+    ./fabric-ca-client enroll \
+        -u "https://$username:$password@$CA_HOST:$CA_PORT" \
+        --tls.certfiles "$TLS_CERT_PATH/tls-ca-cert.pem" \
+        --enrollment.profile tls \
+        --csr.hosts "ca.$host_suffix" \
+        --mspdir "tls-ca/$username/msp"
+    
+    if [ $? -ne 0 ]; then
+        echo "⛔ Failed to enroll $username"
+        return 1
+    fi
+    echo "✅ $username enrolled successfully"
+    return 0
+}
 
-# Delete rcaadmin directories if they exist
-if [ -d "$FABRIC_CA_CLIENT_HOME/tls-ca/rcaadmin-org1" ] || [ -d "$FABRIC_CA_CLIENT_HOME/tls-ca/rcaadmin-org2" ] || [ -d "$FABRIC_CA_CLIENT_HOME/tls-ca/rcaadmin-orderer" ]; then
-    echo "Directory $FABRIC_CA_CLIENT_HOME/tls-ca/rcaadmin-* exists. Deleting."
-    rm -rf $FABRIC_CA_CLIENT_HOME/tls-ca/rcaadmin-*
-fi
+# Function to rename private key files
+rename_private_keys() {
+    local username=$1
+    local keystore_dir="tls-ca/$username/msp/keystore"
+    
+    if [ -d "$keystore_dir" ]; then
+        echo "🔑 Renaming private key for $username..."
+        find "$keystore_dir" -name "*_sk" -exec mv {} "$keystore_dir/key.pem" \;
+        if [ $? -ne 0 ]; then
+            echo "⚠️ Warning: Could not rename private key for $username"
+            return 1
+        fi
+    else
+        echo "⚠️ Warning: Keystore directory not found for $username"
+        return 1
+    fi
+    return 0
+}
 
-# register the bootstrap users
-echo "🔐 Registering bootstrap users (rcaadmin-*) with TLS CA..."
-# for Org1-CA
-# -d means debug mode
-./fabric-ca-client register -d \
-    --id.name rcaadmin-org1 \
-    --id.secret org1pw \
-    -u https://tls.fabriczakat.local:7054  \
-    --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-    --mspdir tls-ca/tlsadmin/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to register rcaadmin-org1"; exit 1; fi
+echo "🚀 Starting bootstrap identity registration and enrollment..."
 
-# for Org2-CA
-./fabric-ca-client register -d \
-    --id.name rcaadmin-org2 \
-    --id.secret org2pw \
-    -u https://tls.fabriczakat.local:7054  \
-    --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-    --mspdir tls-ca/tlsadmin/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to register rcaadmin-org2"; exit 1; fi
+# Change to CA client directory
+cd "$CA_CLIENT_HOME"
+export FABRIC_CA_CLIENT_HOME="$PWD"
 
-# for Orderer-CA
-./fabric-ca-client register -d \
-    --id.name rcaadmin-orderer \
-    --id.secret ordererpw \
-    -u https://tls.fabriczakat.local:7054  \
-    --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-    --mspdir tls-ca/tlsadmin/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to register rcaadmin-orderer"; exit 1; fi
-echo "✅ Bootstrap users registered successfully."
+# Verify prerequisites
+verify_prerequisites || exit 1
 
+# Clean up existing rcaadmin directories if they exist
+echo "🧹 Cleaning up existing rcaadmin directories..."
+rm -rf tls-ca/rcaadmin-*
 
-# enroll the bootstrap users
-echo "🔐 Enrolling bootstrap users (rcaadmin-*) with TLS CA..."
-# In this case, the --mspdir flag works a little differently.
-# For the enroll command, the --mspdir flag indicates where to
-# store the generated TLS certificates for the rcaadmin identity.
+# Register bootstrap users
+echo "📝 Registering bootstrap users..."
+for username in "${!BOOTSTRAP_USERS[@]}"; do
+    register_bootstrap_user "$username" "${BOOTSTRAP_USERS[$username]}" || exit 1
+done
 
-# Org1-CA's TLS cert
-./fabric-ca-client enroll \
-  -u https://rcaadmin-org1:org1pw@tls.fabriczakat.local:7054 \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --enrollment.profile tls \
-  --csr.hosts 'ca.org1.fabriczakat.local' \
-  --mspdir tls-ca/rcaadmin-org1/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to enroll rcaadmin-org1"; exit 1; fi
+# Enroll bootstrap users
+echo "🔒 Enrolling bootstrap users..."
+for username in "${!BOOTSTRAP_USERS[@]}"; do
+    # Extract org name from username (rcaadmin-org1 -> org1)
+    org=${username#rcaadmin-}
+    # Create host suffix based on org name
+    host_suffix="$org.${ORDERER_DOMAIN}"
+    
+    enroll_bootstrap_user "$username" "${BOOTSTRAP_USERS[$username]}" "$host_suffix" || exit 1
+    rename_private_keys "$username" || true
+done
 
-# Org2-CA's TLS cert
-./fabric-ca-client enroll \
-  -u https://rcaadmin-org2:org2pw@tls.fabriczakat.local:7054 \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --enrollment.profile tls \
-  --csr.hosts 'ca.org2.fabriczakat.local' \
-  --mspdir tls-ca/rcaadmin-org2/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to enroll rcaadmin-org2"; exit 1; fi
+echo "🎉 Bootstrap identity registration and enrollment completed successfully!"
+echo ""
+echo "Generated artifacts:"
+for username in "${!BOOTSTRAP_USERS[@]}"; do
+    echo "- $CA_CLIENT_HOME/tls-ca/$username/msp/"
+done
+echo "----------------------------------------"
 
-# Orderer-CA's TLS cert
-./fabric-ca-client enroll \
-  -u https://rcaadmin-orderer:ordererpw@tls.fabriczakat.local:7054 \
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \
-  --enrollment.profile tls \
-  --csr.hosts 'ca.orderer.fabriczakat.local' \
-  --mspdir tls-ca/rcaadmin-orderer/msp
-if [ $? -ne 0 ]; then echo "⛔ Failed to enroll rcaadmin-orderer"; exit 1; fi
-echo "✅ Bootstrap users enrolled successfully."
-
-
-# Check for private key files before attempting to rename them
-echo "📄 Renaming private key files..."
-# Org1-CA
-if [ -d "tls-ca/rcaadmin-org1/msp/keystore" ]; then
-    # Use find to locate the key file, then rename it
-    find tls-ca/rcaadmin-org1/msp/keystore -name "*_sk" -exec mv {} tls-ca/rcaadmin-org1/msp/keystore/key.pem \;
-fi
-
-# Org2-CA
-if [ -d "tls-ca/rcaadmin-org2/msp/keystore" ]; then
-    find tls-ca/rcaadmin-org2/msp/keystore -name "*_sk" -exec mv {} tls-ca/rcaadmin-org2/msp/keystore/key.pem \;
-fi
-
-# Orderer-CA
-if [ -d "tls-ca/rcaadmin-orderer/msp/keystore" ]; then
-    find tls-ca/rcaadmin-orderer/msp/keystore -name "*_sk" -exec mv {} tls-ca/rcaadmin-orderer/msp/keystore/key.pem \;
-fi
-echo "✅ Private key files renamed successfully."
-echo "✅ Bootstrap user registration and enrollment complete."
+exit 0

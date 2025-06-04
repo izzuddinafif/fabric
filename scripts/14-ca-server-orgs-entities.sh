@@ -1,11 +1,9 @@
 #!/bin/bash
 
-declare -A ORGS=(
-    ["10.104.0.2"]="org1"
-    ["10.104.0.4"]="org2"
-)
+# Source helper scripts
+source "$(dirname "$0")/helper/ssh-utils.sh"
 
-# Fix the TLS CA URL to avoid protocol duplication
+# Fixed TLS CA details
 TLS_CA_HOST="tls.fabriczakat.local"
 TLS_CA_PORT="7054"
 TLS_CA_URL="https://${TLS_CA_HOST}:${TLS_CA_PORT}"
@@ -17,6 +15,9 @@ for IP in "${!ORGS[@]}"; do
     DOMAIN="${ORG}.fabriczakat.local"
     CA_HOST="ca.${DOMAIN}"
     CA_PORT="7054"
+    CA_URL="https://${CA_HOST}:${CA_PORT}"
+    
+    # Define identity names and credentials
     BOOTSTRAP_USER="btstrp-${ORG}"
     BOOTSTRAP_MSP="${ORG}-ca/${BOOTSTRAP_USER}/msp"
     PEER_NAME="peer.${DOMAIN}"
@@ -24,6 +25,7 @@ for IP in "${!ORGS[@]}"; do
     PEER_SECRET="${ORG}peerpw"
     ADMIN_SECRET="${ORG}adminpw"
 
+    # Define MSP directories
     PEER_MSP="organizations/peerOrganizations/${DOMAIN}/peers/${PEER_NAME}/msp"
     ADMIN_MSP="organizations/peerOrganizations/${DOMAIN}/users/Admin@${DOMAIN}/msp"
     ORG_MSP="organizations/peerOrganizations/${DOMAIN}/msp"
@@ -31,238 +33,93 @@ for IP in "${!ORGS[@]}"; do
 
     echo "⚙️ Bootstrapping $ORG identities (peer, admin, TLS) at $IP..."
 
-    ssh "fabricadmin@$IP" """
-set -e # Exit on any error
-
-echo \"  🚀 Starting identity bootstrapping process on $IP for $ORG...\"
-
+    # Setup script for initial directory creation
+    SETUP_SCRIPT="""
+set -e
+cd ~/fabric
 # Create directories
-echo \"  📁 Ensuring MSP and TLS directories exist...\"
-mkdir -p ~/fabric/$PEER_MSP ~/fabric/$ADMIN_MSP ~/fabric/$ORG_MSP/cacerts ~/fabric/$ORG_MSP/tlscacerts ~/fabric/$PEER_TLS_DIR
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create initial directories\"; exit 1; fi
-echo \"  ✅ Initial directories ensured.\"
+mkdir -p $PEER_MSP $ADMIN_MSP $ORG_MSP/cacerts $ORG_MSP/tlscacerts $PEER_TLS_DIR
 
-# Configure HOME so the CA client knows where to store data
-cd ~/fabric/fabric-ca-client
+# Set fabric-ca-client home
+cd $HOME_DIR
 export FABRIC_CA_CLIENT_HOME=\$PWD
-echo \"  ℹ️ Set FABRIC_CA_CLIENT_HOME to \$PWD\"
-
-# Register peer identity with org CA
-echo \"  ✍️ Registering peer identity '$PEER_NAME' with $ORG CA...\"
-~/bin/fabric-ca-client register -d \\
-  --id.name $PEER_NAME \\
-  --id.secret $PEER_SECRET \\
-  --id.type peer \\
-  --mspdir $BOOTSTRAP_MSP \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  -u https://$CA_HOST:$CA_PORT
-# Allow registration to fail if already exists, but check for other errors
-if [ \$? -ne 0 ] && ! [[ \$(tail -n 5 fabric-ca-client.log | grep -i 'already registered') ]]; then
-    echo \"  ⛔ Failed to register peer '$PEER_NAME'. Check fabric-ca-client.log.\"
-    exit 1
-fi
-echo \"  ✅ Peer identity '$PEER_NAME' registered (or already exists).\"
-
-# Register admin identity with org CA
-echo \"  ✍️ Registering admin identity '$ADMIN_NAME' with $ORG CA...\"
-~/bin/fabric-ca-client register -d \\
-  --id.name $ADMIN_NAME \\
-  --id.secret $ADMIN_SECRET \\
-  --id.type admin \\
-  --mspdir $BOOTSTRAP_MSP \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  -u https://$CA_HOST:$CA_PORT
-if [ \$? -ne 0 ] && ! [[ \$(tail -n 5 fabric-ca-client.log | grep -i 'already registered') ]]; then
-    echo \"  ⛔ Failed to register admin '$ADMIN_NAME'. Check fabric-ca-client.log.\"
-    exit 1
-fi
-echo \"  ✅ Admin identity '$ADMIN_NAME' registered (or already exists).\"
-
-# Enroll peer identity
-echo \"  🔐 Enrolling peer identity '$PEER_NAME'...\"
-~/bin/fabric-ca-client enroll -d \\
-  -u https://$PEER_NAME:$PEER_SECRET@$CA_HOST:$CA_PORT \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  --mspdir ~/fabric/$PEER_MSP
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to enroll peer '$PEER_NAME'\"; exit 1; fi
-echo \"  ✅ Peer identity '$PEER_NAME' enrolled.\"
-
-# Enroll admin identity
-echo \"  🔐 Enrolling admin identity '$ADMIN_NAME'...\"
-~/bin/fabric-ca-client enroll -d \\
-  -u https://$ADMIN_NAME:$ADMIN_SECRET@$CA_HOST:$CA_PORT \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  --mspdir ~/fabric/$ADMIN_MSP
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to enroll admin '$ADMIN_NAME'\"; exit 1; fi
-echo \"  ✅ Admin identity '$ADMIN_NAME' enrolled.\"
-
-# Rename keys for consistency
-echo \"  📄 Renaming private keys...\"
-PEER_KEY_FILE=\$(find ~/fabric/$PEER_MSP/keystore -type f -name '*_sk' | head -n 1)
-ADMIN_KEY_FILE=\$(find ~/fabric/$ADMIN_MSP/keystore -type f -name '*_sk' | head -n 1)
-if [ -z \"\$PEER_KEY_FILE\" ]; then echo \"  ⛔ Peer key file not found in ~/fabric/$PEER_MSP/keystore\"; exit 1; fi
-if [ -z \"\$ADMIN_KEY_FILE\" ]; then echo \"  ⛔ Admin key file not found in ~/fabric/$ADMIN_MSP/keystore\"; exit 1; fi
-mv \"\$PEER_KEY_FILE\" ~/fabric/$PEER_MSP/keystore/key.pem
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to rename peer key\"; exit 1; fi
-mv \"\$ADMIN_KEY_FILE\" ~/fabric/$ADMIN_MSP/keystore/key.pem
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to rename admin key\"; exit 1; fi
-echo \"  ✅ Private keys renamed.\"
-
-# Copy certificates for org MSP
-echo \"  📄 Copying certificates to Org MSP...\"
-cp ~/fabric/$PEER_MSP/cacerts/* ~/fabric/$ORG_MSP/cacerts/
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy CA cert to Org MSP\"; exit 1; fi
-cp tls-root-cert/tls-ca-cert.pem ~/fabric/$ORG_MSP/tlscacerts/tls-ca-cert.pem
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS CA cert to Org MSP\"; exit 1; fi
-echo \"  ✅ Certificates copied to Org MSP.\"
-
-# Create MSP config files
-echo \"  📝 Creating MSP config.yaml files...\"
-CACERT=\$(ls ~/fabric/$ORG_MSP/cacerts/*.pem | head -n 1)
-if [ -z \"\$CACERT\" ]; then echo \"  ⛔ CA cert not found in ~/fabric/$ORG_MSP/cacerts/\"; exit 1; fi
-CACERT_FILENAME=\$(basename \$CACERT)
-
-# Create ORG MSP config.yaml
-cat > ~/fabric/$ORG_MSP/config.yaml <<YAML
-NodeOUs:
-  Enable: true
-  ClientOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: client
-  PeerOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: peer
-  AdminOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: admin
-  OrdererOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: orderer
-YAML
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create Org MSP config.yaml\"; exit 1; fi
-
-# Create PEER MSP config.yaml
-cat > ~/fabric/$PEER_MSP/config.yaml <<YAML
-NodeOUs:
-  Enable: true
-  ClientOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: client
-  PeerOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: peer
-  AdminOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: admin
-  OrdererOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: orderer
-YAML
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create Peer MSP config.yaml\"; exit 1; fi
-
-# Create ADMIN MSP config.yaml
-cat > ~/fabric/$ADMIN_MSP/config.yaml <<YAML
-NodeOUs:
-  Enable: true
-  ClientOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: client
-  PeerOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: peer
-  AdminOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: admin
-  OrdererOUIdentifier:
-    Certificate: cacerts/\$CACERT_FILENAME
-    OrganizationalUnitIdentifier: orderer
-YAML
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to create Admin MSP config.yaml\"; exit 1; fi
-echo \"  ✅ MSP config.yaml files created.\"
-
-# Verify TLS admin MSP exists
-echo \"  🔎 Verifying TLS admin credentials...\"
-if [ ! -f "tls-ca/tlsadmin/msp/signcerts/cert.pem" ]; then
-  echo \"  ⛔ Error: TLS admin credentials not found. Ensure script 03 and 11 ran successfully.\"
-  exit 1
-fi
-echo \"  ✅ TLS admin credentials found.\"
-
-# Register peer with TLS CA using TLS admin identity
-echo \"  ✍️ Registering peer '$PEER_NAME' with TLS CA...\"
-~/bin/fabric-ca-client register -d \\
-  --id.name $PEER_NAME \\
-  --id.secret $PEER_SECRET \\
-  --id.type peer \\
-  -u $TLS_CA_URL \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  --mspdir tls-ca/tlsadmin/msp
-if [ \$? -ne 0 ] && ! [[ \$(tail -n 5 fabric-ca-client.log | grep -i 'already registered') ]]; then
-    echo \"  ⛔ Failed to register peer '$PEER_NAME' with TLS CA. Check fabric-ca-client.log.\"
-    exit 1
-fi
-echo \"  ✅ Peer '$PEER_NAME' registered with TLS CA (or already exists).\"
-
-# Enroll peer with TLS CA
-echo \"  🔐 Enrolling peer '$PEER_NAME' with TLS CA...\"
-~/bin/fabric-ca-client enroll -d \\
-  -u https://$PEER_NAME:$PEER_SECRET@$TLS_CA_HOST:$TLS_CA_PORT \\
-  --csr.hosts $PEER_NAME \\
-  --tls.certfiles tls-root-cert/tls-ca-cert.pem \\
-  --enrollment.profile tls \\
-  --mspdir ~/fabric/$PEER_TLS_DIR
-if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to enroll peer '$PEER_NAME' with TLS CA\"; exit 1; fi
-echo \"  ✅ Peer '$PEER_NAME' enrolled with TLS CA.\"
-
-# Setup the TLS certificates
-echo \"  ⚙️ Setting up peer TLS certificates...\"
-if [ -d ~/fabric/$PEER_TLS_DIR/keystore ] && [ -d ~/fabric/$PEER_TLS_DIR/signcerts ]; then
-  
-  # Copy the cert
-  cp ~/fabric/$PEER_TLS_DIR/signcerts/cert.pem ~/fabric/$PEER_TLS_DIR/server.crt
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS server cert\"; exit 1; fi
-  
-  # Find and copy the key file
-  KEY_FILE=\$(find ~/fabric/$PEER_TLS_DIR/keystore -type f | head -n 1)
-  if [ -z \"\$KEY_FILE\" ]; then echo \"  ⛔ TLS key file not found in ~/fabric/$PEER_TLS_DIR/keystore\"; exit 1; fi
-  cp \"\$KEY_FILE\" ~/fabric/$PEER_TLS_DIR/server.key
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS server key\"; exit 1; fi
-  
-  # Copy the TLS CA cert
-  mkdir -p ~/fabric/$PEER_TLS_DIR/tlscacerts
-  cp tls-root-cert/tls-ca-cert.pem ~/fabric/$PEER_TLS_DIR/tlscacerts/tls-ca-cert.pem
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS CA cert to peer TLS tlscacerts\"; exit 1; fi
-  cp tls-root-cert/tls-ca-cert.pem ~/fabric/$PEER_TLS_DIR/ca.crt
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS CA cert to peer TLS ca.crt\"; exit 1; fi
-  
-  # Copy TLS cert to MSP folder
-  mkdir -p ~/fabric/$PEER_MSP/tlscacerts
-  cp tls-root-cert/tls-ca-cert.pem ~/fabric/$PEER_MSP/tlscacerts/tls-ca-cert.pem
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS CA cert to Peer MSP tlscacerts\"; exit 1; fi
-
-  # Also copy TLS cert to Admin MSP folder
-  mkdir -p ~/fabric/$ADMIN_MSP/tlscacerts
-  cp tls-root-cert/tls-ca-cert.pem ~/fabric/$ADMIN_MSP/tlscacerts/tls-ca-cert.pem
-  if [ \$? -ne 0 ]; then echo \"  ⛔ Failed to copy TLS CA cert to Admin MSP tlscacerts\"; exit 1; fi
-  
-  echo \"  ✅ TLS certificates for $PEER_NAME set up successfully.\"
-else
-  echo \"  ⛔ Failed to set up TLS certificates for $PEER_NAME - enrollment may have failed.\"
-  ls -la ~/fabric/$PEER_TLS_DIR
-  exit 1
-fi
-
-echo \"✅ Finished enrolling identities and TLS for $ORG on $IP.\"
 """
+    ssh_exec_script "$IP" "$SETUP_SCRIPT" "Failed to create directories" || continue
 
-    # Check the exit status of the SSH command
-    if [ $? -eq 0 ]; then
-        echo "✅ Successfully bootstrapped identities for $ORG at $IP."
-    else
-        echo "⛔ Failed to bootstrap identities for $ORG at $IP. Check logs on the remote machine."
+    # Register peer identity with org CA
+    register_identity "$IP" "$PEER_NAME" "$PEER_SECRET" "peer" "$CA_URL" "$BOOTSTRAP_MSP" "tls-root-cert/tls-ca-cert.pem" || continue
+    echo "  ✅ Peer identity registered"
+
+    # Register admin identity with org CA
+    register_identity "$IP" "$ADMIN_NAME" "$ADMIN_SECRET" "admin" "$CA_URL" "$BOOTSTRAP_MSP" "tls-root-cert/tls-ca-cert.pem" || continue
+    echo "  ✅ Admin identity registered"
+
+    # Enroll peer identity
+    enroll_identity "$IP" "$PEER_NAME" "$PEER_SECRET" "$CA_HOST:$CA_PORT" "~/fabric/$PEER_MSP" "tls-root-cert/tls-ca-cert.pem" || continue
+    echo "  ✅ Peer identity enrolled"
+
+    # Enroll admin identity
+    enroll_identity "$IP" "$ADMIN_NAME" "$ADMIN_SECRET" "$CA_HOST:$CA_PORT" "~/fabric/$ADMIN_MSP" "tls-root-cert/tls-ca-cert.pem" || continue
+    echo "  ✅ Admin identity enrolled"
+
+    # Rename private keys
+    copy_msp_files "$IP" "~/fabric/$PEER_MSP" "~/fabric/$PEER_MSP" "key" || continue
+    copy_msp_files "$IP" "~/fabric/$ADMIN_MSP" "~/fabric/$ADMIN_MSP" "key" || continue
+    echo "  ✅ Private keys renamed"
+
+    # Copy certificates for org MSP
+    CERT_SCRIPT="""
+cd ~/fabric
+cp $PEER_MSP/cacerts/* $ORG_MSP/cacerts/
+cp tls-root-cert/tls-ca-cert.pem $ORG_MSP/tlscacerts/tls-ca-cert.pem
+"""
+    ssh_exec_script "$IP" "$CERT_SCRIPT" "Failed to copy certificates" || continue
+    echo "  ✅ Certificates copied to Org MSP"
+
+    # Get CA cert filename for MSP config
+    CACERT_SCRIPT="ls ~/fabric/$ORG_MSP/cacerts/*.pem | head -n 1 | xargs basename"
+    CACERT_FILENAME=$(ssh_exec "$IP" "$CACERT_SCRIPT")
+
+    # Create MSP config files
+    create_msp_config "$IP" "~/fabric/$ORG_MSP" "$CACERT_FILENAME" || continue
+    create_msp_config "$IP" "~/fabric/$PEER_MSP" "$CACERT_FILENAME" || continue
+    create_msp_config "$IP" "~/fabric/$ADMIN_MSP" "$CACERT_FILENAME" || continue
+    echo "  ✅ MSP config files created"
+
+    # Verify TLS admin credentials
+    if ! verify_remote_file "$IP" "tls-ca/tlsadmin/msp/signcerts/cert.pem"; then
+        echo "  ⛔ Error: TLS admin credentials not found. Ensure script 03 and 11 ran successfully."
+        continue
     fi
-    echo "-----------------------------------------------------"
+    echo "  ✅ TLS admin credentials found"
 
+    # Register peer with TLS CA
+    register_identity "$IP" "$PEER_NAME" "$PEER_SECRET" "peer" "$TLS_CA_URL" "tls-ca/tlsadmin/msp" "tls-root-cert/tls-ca-cert.pem" || continue
+    echo "  ✅ Peer registered with TLS CA"
+
+    # Enroll peer with TLS CA
+    enroll_identity "$IP" "$PEER_NAME" "$PEER_SECRET" "$TLS_CA_HOST:$TLS_CA_PORT" "~/fabric/$PEER_TLS_DIR" "tls-root-cert/tls-ca-cert.pem" "--csr.hosts $PEER_NAME --enrollment.profile tls" || continue
+    echo "  ✅ Peer enrolled with TLS CA"
+
+    # Setup TLS certificates
+    TLS_SETUP_SCRIPT="""
+cd ~/fabric
+cp $PEER_TLS_DIR/signcerts/cert.pem $PEER_TLS_DIR/server.crt
+KEY_FILE=\$(find $PEER_TLS_DIR/keystore -type f | head -n 1)
+cp "\$KEY_FILE" $PEER_TLS_DIR/server.key
+
+# Setup TLS CA certs in various locations
+mkdir -p $PEER_TLS_DIR/tlscacerts $PEER_MSP/tlscacerts $ADMIN_MSP/tlscacerts
+cp tls-root-cert/tls-ca-cert.pem $PEER_TLS_DIR/tlscacerts/tls-ca-cert.pem
+cp tls-root-cert/tls-ca-cert.pem $PEER_TLS_DIR/ca.crt
+cp tls-root-cert/tls-ca-cert.pem $PEER_MSP/tlscacerts/tls-ca-cert.pem
+cp tls-root-cert/tls-ca-cert.pem $ADMIN_MSP/tlscacerts/tls-ca-cert.pem
+"""
+    ssh_exec_script "$IP" "$TLS_SETUP_SCRIPT" "Failed to setup TLS certificates" || continue
+    echo "  ✅ TLS certificates setup completed"
+
+    echo "✅ Successfully bootstrapped identities for $ORG at $IP."
+    echo "-----------------------------------------------------"
 done
 
 echo "🎉 All organizations have been bootstrapped."

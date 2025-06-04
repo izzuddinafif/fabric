@@ -1,158 +1,77 @@
 #!/bin/bash
-# Script 20: Create Channel & Join Peers
-
 set -e # Exit on error
 
-echo "🚀 Creating Channel and Joining Peers..."
+# Source helper scripts
+source "$(dirname "$0")/helper/channel-utils.sh"
 
-# Define Organization Details (Primary Org for creation, others for joining)
-ORG1_NAME="Org1"
-ORG1_DOMAIN="org1.fabriczakat.local"
-ORG1_IP="10.104.0.2"
-ORG1_PEER_PORT="7051"
+echo "🔗 Creating and Joining Channel..."
 
-ORG2_NAME="Org2"
-ORG2_DOMAIN="org2.fabriczakat.local"
-ORG2_IP="10.104.0.4"
-ORG2_PEER_PORT="7051"
-
-# Channel details
+# Define paths
+LOCAL_FABRIC_DIR="$HOME/fabric"
+CHANNEL_ARTIFACTS_DIR="$LOCAL_FABRIC_DIR/channel-artifacts"
 CHANNEL_NAME="zakatchannel"
-CHANNEL_TX_FILE="/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/${CHANNEL_NAME}.tx" # Path inside CLI container
-CHANNEL_BLOCK_FILE="/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts/${CHANNEL_NAME}.block" # Path inside CLI container
 
-# Orderer details (as seen from within the CLI containers)
-ORDERER_ADDRESS="orderer.fabriczakat.local:7050"
-ORDERER_CA_CERT="/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp/tlscacerts/tls-ca-cert.pem" # Path inside CLI container
-
-# Log file on the Orderer machine
-LOG_DIR="$HOME/fabric/logs"
+# Setup logging
+LOG_DIR="$LOCAL_FABRIC_DIR/logs"
 LOG_FILE="$LOG_DIR/20-channel-create-join.log"
 mkdir -p $LOG_DIR
 touch $LOG_FILE
 
-# Function to log messages
-log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a $LOG_FILE
-}
+log_msg "$LOG_FILE" "Starting Channel Creation and Join Process (20)"
 
-log "Starting Channel Create/Join Script (20)"
-
-# --- Step 1: Create Channel using Org1 CLI ---
-log "----------------------------------------"
-log "Creating channel '$CHANNEL_NAME' using Org1 CLI..."
-log "----------------------------------------"
-
-ORG1_CLI_CONTAINER="cli.${ORG1_DOMAIN}"
-
-# Command to execute inside Org1 CLI container
-# Note: Environment variables like CORE_PEER_LOCALMSPID, CORE_PEER_MSPCONFIGPATH, CORE_PEER_ADDRESS, CORE_PEER_TLS_ROOTCERT_FILE
-# are already set in the container's environment (from docker-compose).
-# We just need to specify the orderer details and channel config.
-CREATE_CMD="peer channel create -o $ORDERER_ADDRESS --ordererTLSHostnameOverride orderer.fabriczakat.local -c $CHANNEL_NAME -f $CHANNEL_TX_FILE --outputBlock $CHANNEL_BLOCK_FILE --tls --cafile $ORDERER_CA_CERT"
-
-log "Executing on $ORG1_CLI_CONTAINER@$ORG1_IP: $CREATE_CMD"
-
-ssh fabricadmin@$ORG1_IP "docker exec $ORG1_CLI_CONTAINER bash -c '$CREATE_CMD'" >> $LOG_FILE 2>&1
-
-# Check if the channel block file was created inside the container
-# We check this via SSH + docker exec ls
-ssh fabricadmin@$ORG1_IP "docker exec $ORG1_CLI_CONTAINER ls $CHANNEL_BLOCK_FILE" >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "⛔ Error: Channel creation failed. Block file '$CHANNEL_BLOCK_FILE' not found in $ORG1_CLI_CONTAINER."
-    log "   Check the logs ($LOG_FILE) and the container logs on $ORG1_IP: docker logs $ORG1_CLI_CONTAINER"
+# Verify channel transaction file exists
+CHANNEL_TX="$CHANNEL_ARTIFACTS_DIR/${CHANNEL_NAME}.tx"
+if [ ! -f "$CHANNEL_TX" ]; then
+    log_msg "$LOG_FILE" "⛔ Channel transaction file not found: $CHANNEL_TX"
     exit 1
 fi
-log "✅ Channel '$CHANNEL_NAME' created successfully. Block file generated: $CHANNEL_BLOCK_FILE (inside $ORG1_CLI_CONTAINER)"
+log_msg "$LOG_FILE" "✅ Channel transaction file verified."
 
-# --- Step 2: Join Org1 Peer to the Channel ---
-log "----------------------------------------"
-log "Joining Org1 Peer to channel '$CHANNEL_NAME'..."
-log "----------------------------------------"
+# Create channel using the first organization
+FIRST_ORG_DOMAIN="${ORG_DOMAINS[0]}"
+FIRST_ORG_IP="${ORG_IPS[0]}"
 
-JOIN_CMD="peer channel join -b $CHANNEL_BLOCK_FILE"
-
-log "Executing on $ORG1_CLI_CONTAINER@$ORG1_IP: $JOIN_CMD"
-
-ssh fabricadmin@$ORG1_IP "docker exec $ORG1_CLI_CONTAINER bash -c '$JOIN_CMD'" >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "⛔ Error: Org1 Peer failed to join channel '$CHANNEL_NAME'."
-    log "   Check the logs ($LOG_FILE) and the container logs on $ORG1_IP: docker logs $ORG1_CLI_CONTAINER and docker logs peer.${ORG1_DOMAIN}"
+log_msg "$LOG_FILE" "📝 Creating channel using ${FIRST_ORG_DOMAIN}..."
+if ! create_channel \
+    "$FIRST_ORG_IP" \
+    "$FIRST_ORG_DOMAIN" \
+    "$CHANNEL_NAME" \
+    "/etc/hyperledger/fabric/channel-artifacts/${CHANNEL_NAME}.tx" \
+    "$LOG_FILE"; then
+    log_msg "$LOG_FILE" "⛔ Channel creation failed"
     exit 1
 fi
+log_msg "$LOG_FILE" "✅ Channel created successfully."
 
-# Verify join by listing channels the peer has joined
-sleep 3 # Give peer time to process join
-VERIFY_JOIN_CMD="peer channel list"
-log "Verifying Org1 join on $ORG1_CLI_CONTAINER@$ORG1_IP: $VERIFY_JOIN_CMD"
-JOIN_OUTPUT=$(ssh fabricadmin@$ORG1_IP "docker exec $ORG1_CLI_CONTAINER bash -c '$VERIFY_JOIN_CMD'")
-log "Org1 Peer Channel List Output:"
-echo "$JOIN_OUTPUT" >> $LOG_FILE
-echo "$JOIN_OUTPUT" # Also print to stdout
+# Have each organization join the channel
+for i in ${!ORG_DOMAINS[@]}; do
+    ORG_DOMAIN="${ORG_DOMAINS[$i]}"
+    ORG_IP="${ORG_IPS[$i]}"
+    
+    log_msg "$LOG_FILE" "📝 Having $ORG_DOMAIN join the channel..."
+    if ! join_channel "$ORG_IP" "$ORG_DOMAIN" "$CHANNEL_NAME" "$LOG_FILE"; then
+        log_msg "$LOG_FILE" "⛔ Failed to join channel for $ORG_DOMAIN"
+        exit 1
+    fi
+    log_msg "$LOG_FILE" "✅ $ORG_DOMAIN joined the channel successfully."
 
-if [[ "$JOIN_OUTPUT" != *"$CHANNEL_NAME"* ]]; then
-    log "⛔ Error: Org1 Peer verification failed. Channel '$CHANNEL_NAME' not found in list."
-    exit 1
-fi
-log "✅ Org1 Peer joined channel '$CHANNEL_NAME' successfully."
+    # Verify channel list for each organization
+    if ! list_channels "$ORG_IP" "$ORG_DOMAIN" "$LOG_FILE"; then
+        log_msg "$LOG_FILE" "⛔ Failed to list channels for $ORG_DOMAIN"
+        exit 1
+    fi
+    
+    # Get channel information to verify everything is correct
+    if ! get_channel_info "$ORG_IP" "$ORG_DOMAIN" "$CHANNEL_NAME" "$LOG_FILE"; then
+        log_msg "$LOG_FILE" "⛔ Failed to get channel info for $ORG_DOMAIN"
+        exit 1
+    fi
+done
 
-
-# --- Step 3: Join Org2 Peer to the Channel ---
-# Step 18 from the plan: Join Remaining Peers
-log "----------------------------------------"
-log "Joining Org2 Peer to channel '$CHANNEL_NAME'..."
-log "----------------------------------------"
-
-ORG2_CLI_CONTAINER="cli.${ORG2_DOMAIN}"
-
-# We need the genesis block on the Org2 CLI container.
-# The channel block was created on Org1's CLI. We need to copy it.
-# Option 1: Copy from Org1 CLI -> Org1 Host -> Orderer Host -> Org2 Host -> Org2 CLI (complex)
-# Option 2: Use 'peer channel fetch' on Org2 CLI (simpler if connectivity allows)
-# Option 3: Copy directly between Org1 Host and Org2 Host (requires SCP between peers)
-# Option 4: Copy from Org1 CLI -> Org1 Host -> SCP to Org2 Host -> Copy into Org2 CLI
-
-log "Fetching channel block '$CHANNEL_BLOCK_FILE' on Org2 CLI..."
-# Use peer channel fetch 0 to get the genesis block for the channel
-FETCH_CMD="peer channel fetch 0 $CHANNEL_BLOCK_FILE -o $ORDERER_ADDRESS --ordererTLSHostnameOverride orderer.fabriczakat.local -c $CHANNEL_NAME --tls --cafile $ORDERER_CA_CERT"
-
-log "Executing on $ORG2_CLI_CONTAINER@$ORG2_IP: $FETCH_CMD"
-ssh fabricadmin@$ORG2_IP "docker exec $ORG2_CLI_CONTAINER bash -c '$FETCH_CMD'" >> $LOG_FILE 2>&1
-
-# Check if the block file was fetched
-ssh fabricadmin@$ORG2_IP "docker exec $ORG2_CLI_CONTAINER ls $CHANNEL_BLOCK_FILE" >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "⛔ Error: Failed to fetch channel block '$CHANNEL_BLOCK_FILE' on $ORG2_CLI_CONTAINER."
-    log "   Check the logs ($LOG_FILE) and the container logs on $ORG2_IP: docker logs $ORG2_CLI_CONTAINER"
-    exit 1
-fi
-log "✅ Channel block '$CHANNEL_BLOCK_FILE' fetched successfully on $ORG2_CLI_CONTAINER."
-
-# Now join Org2 peer
-log "Executing join on $ORG2_CLI_CONTAINER@$ORG2_IP: $JOIN_CMD"
-ssh fabricadmin@$ORG2_IP "docker exec $ORG2_CLI_CONTAINER bash -c '$JOIN_CMD'" >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "⛔ Error: Org2 Peer failed to join channel '$CHANNEL_NAME'."
-    log "   Check the logs ($LOG_FILE) and the container logs on $ORG2_IP: docker logs $ORG2_CLI_CONTAINER and docker logs peer.${ORG2_DOMAIN}"
-    exit 1
-fi
-
-# Verify join for Org2
-sleep 3
-log "Verifying Org2 join on $ORG2_CLI_CONTAINER@$ORG2_IP: $VERIFY_JOIN_CMD"
-JOIN_OUTPUT_ORG2=$(ssh fabricadmin@$ORG2_IP "docker exec $ORG2_CLI_CONTAINER bash -c '$VERIFY_JOIN_CMD'")
-log "Org2 Peer Channel List Output:"
-echo "$JOIN_OUTPUT_ORG2" >> $LOG_FILE
-echo "$JOIN_OUTPUT_ORG2"
-
-if [[ "$JOIN_OUTPUT_ORG2" != *"$CHANNEL_NAME"* ]]; then
-    log "⛔ Error: Org2 Peer verification failed. Channel '$CHANNEL_NAME' not found in list."
-    exit 1
-fi
-log "✅ Org2 Peer joined channel '$CHANNEL_NAME' successfully."
-
-
-log "🎉 Channel created and all peers joined successfully!"
-log "----------------------------------------"
+log_msg "$LOG_FILE" "🎉 Channel creation and joining completed successfully!"
+log_msg "$LOG_FILE" "Next steps:"
+log_msg "$LOG_FILE" "1. Update anchor peers for each organization (script 21)"
+log_msg "$LOG_FILE" "2. Deploy chaincode on the channel"
+log_msg "$LOG_FILE" "----------------------------------------"
 
 exit 0

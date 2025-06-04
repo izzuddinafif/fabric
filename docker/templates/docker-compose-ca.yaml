@@ -1,0 +1,40 @@
+version: '3.7'
+
+networks:
+  fabric_network:
+    name: fabric_network
+
+services:
+  ca:
+    container_name: ${CONTAINER_NAME}
+    image: hyperledger/fabric-ca:1.5.7
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_PORT=7054
+      - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:9443
+      # CA Configuration
+      - FABRIC_CA_SERVER_CA_NAME=${CA_NAME}
+      - FABRIC_CA_SERVER_CSR_CN=${CSR_CN}
+      - FABRIC_CA_SERVER_CSR_HOSTS=${CSR_HOSTS}
+      # Bootstrap credentials
+      - FABRIC_CA_SERVER_BOOTSTRAP_USER=${BOOTSTRAP_USER:-admin}
+      - FABRIC_CA_SERVER_BOOTSTRAP_PASSWORD=${BOOTSTRAP_PASS:-adminpw}
+      # TLS Configuration (if needed)
+      - FABRIC_CA_SERVER_TLS_CERTFILE=${TLS_CERTFILE:-/etc/hyperledger/fabric-ca-server/tls/cert.pem}
+      - FABRIC_CA_SERVER_TLS_KEYFILE=${TLS_KEYFILE:-/etc/hyperledger/fabric-ca-server/tls/key.pem}
+      # CSR settings
+      - FABRIC_CA_SERVER_CSR_C=ID
+      - FABRIC_CA_SERVER_CSR_ST=East Java
+      - FABRIC_CA_SERVER_CSR_L=Surabaya
+      - FABRIC_CA_SERVER_CSR_O=YDSF
+    command: sh -c 'fabric-ca-server init -b $$FABRIC_CA_SERVER_BOOTSTRAP_USER:$$FABRIC_CA_SERVER_BOOTSTRAP_PASSWORD && fabric-ca-server start'
+    volumes:
+      - ${CA_VOLUME:-../fabric/ca/default}:/etc/hyperledger/fabric-ca-server
+    ports:
+      - "7054:7054"
+      - "9443:9443"
+    networks:
+      - fabric_network

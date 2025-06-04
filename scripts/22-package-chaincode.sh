@@ -1,87 +1,70 @@
 #!/bin/bash
-# Script 22: Package Chaincode
-
 set -e # Exit on error
 
-echo "🚀 Packaging Chaincode..."
+# Source helper scripts
+source "$(dirname "$0")/helper/chaincode-utils.sh"
+
+echo "📦 Packaging Chaincode..."
 
 # Define paths and variables
-FABRIC_CFG_PATH="$HOME/fabric/config" # Needed for peer command config resolution
-CHAINCODE_NAME="zakat" # Corrected chaincode name based on directory
+LOCAL_FABRIC_DIR="$HOME/fabric"
+CHAINCODE_NAME="mycc"
 CHAINCODE_VERSION="1.0"
-CHAINCODE_LANG="golang"
-# Path to the chaincode source code directory
-CHAINCODE_SRC_PATH="$HOME/fabric/chaincode/${CHAINCODE_NAME}" # Corrected path
-# Output directory for the packaged chaincode
-CHAINCODE_PACKAGE_DIR="$HOME/fabric/chaincode-packages"
-# Output package file name
-CHAINCODE_LABEL="${CHAINCODE_NAME}_${CHAINCODE_VERSION}" # e.g., zakat_1.0
-CHAINCODE_PACKAGE_FILE="${CHAINCODE_PACKAGE_DIR}/${CHAINCODE_LABEL}.tar.gz"
+CHAINCODE_LABEL="${CHAINCODE_NAME}_${CHAINCODE_VERSION}"
+PACKAGE_NAME="${CHAINCODE_NAME}.tar.gz"
 
-# Log file
-LOG_DIR="$HOME/fabric/logs"
+# Setup logging
+LOG_DIR="$LOCAL_FABRIC_DIR/logs"
 LOG_FILE="$LOG_DIR/22-package-chaincode.log"
-mkdir -p $LOG_DIR $CHAINCODE_PACKAGE_DIR
+mkdir -p $LOG_DIR
 touch $LOG_FILE
 
-# Function to log messages
-log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a $LOG_FILE
-}
+log_msg "$LOG_FILE" "Starting Chaincode Packaging Process (22)"
 
-log "Starting Chaincode Packaging Script (22)"
-
-# Check if peer binary exists
-log "🔎 Checking for peer binary..."
-if ! command -v peer &> /dev/null; then
-    log "⛔ Error: peer command not found. Make sure Fabric binaries are in your PATH."
-    exit 1
-fi
-log "✅ peer binary found."
-
-# Check if chaincode source directory exists
-log "🔎 Checking for chaincode source directory: $CHAINCODE_SRC_PATH"
-if [ ! -d "$CHAINCODE_SRC_PATH" ]; then
-    log "⛔ Error: Chaincode source directory not found at $CHAINCODE_SRC_PATH"
-    exit 1
-fi
-# Optional: Check for go.mod if it's Go chaincode
-if [ "$CHAINCODE_LANG" == "golang" ]; then
-    if [ ! -f "$CHAINCODE_SRC_PATH/go.mod" ]; then
-        log "⚠️ Warning: go.mod file not found in $CHAINCODE_SRC_PATH. Packaging might fail if dependencies are not vendored or resolvable."
+# Verify chaincode source exists
+CHAINCODE_PATH="/etc/hyperledger/fabric/chaincode/zakat/"
+for IP in "${ORG_IPS[@]}"; do
+    if ! ssh_exec "$IP" "[ -d $CHAINCODE_PATH ]"; then
+        log_msg "$LOG_FILE" "⛔ Chaincode directory not found at $CHAINCODE_PATH on $IP"
+        exit 1
     fi
-fi
-log "✅ Chaincode source directory found."
+done
+log_msg "$LOG_FILE" "✅ Chaincode source verified on all peers."
 
-# Package the chaincode
-log "📦 Packaging chaincode '$CHAINCODE_NAME' version '$CHAINCODE_VERSION'..."
-log "   Source: $CHAINCODE_SRC_PATH"
-log "   Output: $CHAINCODE_PACKAGE_FILE"
-log "   Label: $CHAINCODE_LABEL"
+# Package chaincode on each organization's CLI container
+for i in "${!ORG_DOMAINS[@]}"; do
+    ORG_DOMAIN="${ORG_DOMAINS[$i]}"
+    ORG_IP="${ORG_IPS[$i]}"
+    
+    log_msg "$LOG_FILE" "📦 Packaging chaincode for $ORG_DOMAIN..."
+    
+    # Package the chaincode
+    if ! package_chaincode \
+        "$ORG_IP" \
+        "$ORG_DOMAIN" \
+        "$PACKAGE_NAME" \
+        "$CHAINCODE_PATH" \
+        "$CHAINCODE_LABEL" \
+        "$LOG_FILE"; then
+        log_msg "$LOG_FILE" "⛔ Failed to package chaincode for $ORG_DOMAIN"
+        exit 1
+    fi
+    
+    # Verify package exists
+    if ! ssh_exec "$ORG_IP" "docker exec cli.$ORG_DOMAIN test -f $PACKAGE_NAME"; then
+        log_msg "$LOG_FILE" "⛔ Chaincode package not found after packaging for $ORG_DOMAIN"
+        exit 1
+    fi
+    
+    log_msg "$LOG_FILE" "✅ Chaincode packaged successfully for $ORG_DOMAIN."
+    echo "-----------------------------------------------------"
+done
 
-# Execute the packaging command
-# The FABRIC_CFG_PATH is set to ensure peer can find core.yaml if needed, though package doesn't strictly require it.
-FABRIC_CFG_PATH=$FABRIC_CFG_PATH peer lifecycle chaincode package \
-    "$CHAINCODE_PACKAGE_FILE" \
-    --path "$CHAINCODE_SRC_PATH" \
-    --lang "$CHAINCODE_LANG" \
-    --label "$CHAINCODE_LABEL" >> $LOG_FILE 2>&1
-
-if [ $? -ne 0 ]; then
-    log "⛔ Error: Failed to package chaincode. Check logs ($LOG_FILE)."
-    exit 1
-fi
-
-# Verify the package file was created
-log "🔎 Verifying package file creation..."
-if [ ! -f "$CHAINCODE_PACKAGE_FILE" ]; then
-    log "⛔ Error: Chaincode package file was not created at $CHAINCODE_PACKAGE_FILE."
-    exit 1
-fi
-ls -l "$CHAINCODE_PACKAGE_FILE" >> $LOG_FILE # Log file details
-log "✅ Chaincode packaged successfully: $CHAINCODE_PACKAGE_FILE"
-
-log "🎉 Chaincode packaging complete!"
-log "----------------------------------------"
+log_msg "$LOG_FILE" "🎉 Chaincode packaging completed successfully!"
+log_msg "$LOG_FILE" "Next steps:"
+log_msg "$LOG_FILE" "1. Install chaincode package on peers (script 23)"
+log_msg "$LOG_FILE" "2. Approve chaincode definition for organizations"
+log_msg "$LOG_FILE" "3. Commit chaincode to channel"
+log_msg "$LOG_FILE" "----------------------------------------"
 
 exit 0
