@@ -1,0 +1,125 @@
+# General development
+node_modules/
+*.log
+*.pid
+*.db
+*.tar.gz
+*.pem
+*.key
+priv_sk
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env*.local
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+.cache/
+**/*.pb.go
+**/vendor/
+
+# Dependency directories
+jspm_packages/
+.pnp.js
+.pnp.cjs
+
+# Debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.pid
+*.db
+*.tar.gz
+*.pem
+*.key
+priv_sk
+
+# Fabric-specific exclusions
+chaincode-packages/
+channel-artifacts/
+fabric-ca-server-*/Issuer*
+organizations/
+/wallet/
+/chaincode/go/pkg/
+/go/pkg/
+/go/bin/
+
+# Go development
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+__debug_bin
+.coverprofile
+coverage.txt
+profile.out
+
+# Frontend/Next.js specific
+.next/
+.next/cache/
+.next/server/
+.next/static/
+.next/types/
+next-env.d.ts
+
+# Package manager files
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+bun.lockb
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+.history/
+
+# Log directories
+logs/
+
+# Test results directories
+tests/**/results/
+# Docker/compose 
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Caliper/performance tests
+/tests/caliper/node_modules/
+/tests/caliper/report.html
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# IDE specific
+.idea/
+.vscode/

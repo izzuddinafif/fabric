@@ -1,0 +1,33 @@
+{
+  "name": "zakat-caliper-tests",
+  "version": "1.0.0",
+  "description": "Hyperledger Caliper performance tests for Zakat chaincode",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx caliper launch manager --caliper-workspace ./ --caliper-networkconfig network-config.yaml --caliper-benchconfig caliper-config.yaml --caliper-flow-only-test",
+    "bind": "npx caliper bind --caliper-bind-sut fabric:2.4",
+    "unbind": "npx caliper unbind",
+    "install": "npm install --save @hyperledger/caliper-cli @hyperledger/caliper-core @hyperledger/caliper-fabric"
+  },
+  "keywords": [
+    "hyperledger",
+    "fabric",
+    "caliper",
+    "performance",
+    "zakat",
+    "blockchain"
+  ],
+  "author": "YDSF Team",
+  "license": "MIT",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.3",
+    "@hyperledger/caliper-cli": "^0.6.0",
+    "@hyperledger/caliper-core": "^0.6.0",
+    "@hyperledger/caliper-fabric": "^0.6.0",
+    "@hyperledger/fabric-gateway": "^1.5.0"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}

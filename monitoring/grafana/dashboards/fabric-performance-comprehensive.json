@@ -1,0 +1,518 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Hyperledger Fabric - Comprehensive Performance Monitoring",
+    "description": "Complete performance monitoring for ALL Fabric network components with EVERY available metric",
+    "tags": ["fabric", "performance", "monitoring", "zakat", "comprehensive"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Orderer - Block Processing Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(consensus_etcdraft_committed_block_number[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 20}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Orderer - Broadcast TPS",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(broadcast_processed_count[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 4, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Peer Org1 - Endorsement Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(endorser_proposals_received{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 8, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Peer Org2 - Endorsement Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(endorser_proposals_received{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 12, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Orderer - Leader Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "consensus_etcdraft_is_leader",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "value": "0", "text": "FOLLOWER"},
+              {"type": "value", "value": "1", "text": "LEADER"}
+            ]
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 16, "y": 0}
+      },
+      {
+        "id": 6,
+        "title": "Network Health Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"fabric.*\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN"},
+              {"type": "value", "value": "1", "text": "UP"}
+            ]
+          }
+        },
+        "gridPos": {"h": 6, "w": 4, "x": 20, "y": 0}
+      },
+      {
+        "id": 7,
+        "title": "Blockchain Height (All Peers)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ledger_blockchain_height{job=\"fabric-orderer\"}",
+            "refId": "A",
+            "legendFormat": "Orderer"
+          },
+          {
+            "expr": "ledger_blockchain_height{job=\"fabric-peer-org1\"}",
+            "refId": "B",
+            "legendFormat": "Peer Org1"
+          },
+          {
+            "expr": "ledger_blockchain_height{job=\"fabric-peer-org2\"}",
+            "refId": "C",
+            "legendFormat": "Peer Org2"
+          }
+        ],
+        "yAxes": [
+          {"unit": "short", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}
+      },
+      {
+        "id": 8,
+        "title": "Transaction Processing Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ledger_transaction_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 TX Rate"
+          },
+          {
+            "expr": "rate(ledger_transaction_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org2 TX Rate"
+          }
+        ],
+        "yAxes": [
+          {"unit": "reqps", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6}
+      },
+      {
+        "id": 9,
+        "title": "Chaincode Execution Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(chaincode_launch_duration_sum{job=\"fabric-peer-org1\"}[5m]) / rate(chaincode_launch_duration_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 Launch Time"
+          },
+          {
+            "expr": "rate(chaincode_launch_duration_sum{job=\"fabric-peer-org2\"}[5m]) / rate(chaincode_launch_duration_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org2 Launch Time"
+          },
+          {
+            "expr": "rate(endorser_proposal_duration_sum{job=\"fabric-peer-org1\"}[5m]) / rate(endorser_proposal_duration_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "C",
+            "legendFormat": "Org1 Endorsement Time"
+          },
+          {
+            "expr": "rate(endorser_proposal_duration_sum{job=\"fabric-peer-org2\"}[5m]) / rate(endorser_proposal_duration_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "D",
+            "legendFormat": "Org2 Endorsement Time"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14}
+      },
+      {
+        "id": 10,
+        "title": "CouchDB Processing Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(couchdb_processing_time_sum{job=\"fabric-peer-org1\"}[5m]) / rate(couchdb_processing_time_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 CouchDB Time"
+          },
+          {
+            "expr": "rate(couchdb_processing_time_sum{job=\"fabric-peer-org2\"}[5m]) / rate(couchdb_processing_time_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org2 CouchDB Time"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14}
+      },
+      {
+        "id": 11,
+        "title": "System CPU Usage (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "refId": "A",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"max": 100, "min": 0, "unit": "percent"}
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 22}
+      },
+      {
+        "id": 12,
+        "title": "System Memory Usage (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "100 * (1 - ((node_memory_MemAvailable_bytes) / (node_memory_MemTotal_bytes)))",
+            "refId": "A",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"max": 100, "min": 0, "unit": "percent"}
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 22}
+      },
+      {
+        "id": 13,
+        "title": "System Load Average (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "node_load1",
+            "refId": "A",
+            "legendFormat": "1m {{instance}}"
+          },
+          {
+            "expr": "node_load5",
+            "refId": "B",
+            "legendFormat": "5m {{instance}}"
+          },
+          {
+            "expr": "node_load15",
+            "refId": "C",
+            "legendFormat": "15m {{instance}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 22}
+      },
+      {
+        "id": 14,
+        "title": "Container CPU Usage (Fabric Components)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{name=~\".*fabric.*|.*orderer.*|.*peer.*|.*couchdb.*\"}[5m]) * 100",
+            "refId": "A",
+            "legendFormat": "{{name}} - {{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "percent", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 30}
+      },
+      {
+        "id": 15,
+        "title": "Container Memory Usage (Fabric Components)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{name=~\".*fabric.*|.*orderer.*|.*peer.*|.*couchdb.*\"} / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "{{name}} - {{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "MB", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 30}
+      },
+      {
+        "id": 16,
+        "title": "Network I/O (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(node_network_receive_bytes_total{device!=\"lo\"}[5m]) / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "RX {{instance}} {{device}}"
+          },
+          {
+            "expr": "rate(node_network_transmit_bytes_total{device!=\"lo\"}[5m]) / 1024 / 1024",
+            "refId": "B",
+            "legendFormat": "TX {{instance}} {{device}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "MBs", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 38}
+      },
+      {
+        "id": 17,
+        "title": "Disk I/O (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(node_disk_read_bytes_total[5m]) / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "Read {{instance}} {{device}}"
+          },
+          {
+            "expr": "rate(node_disk_written_bytes_total[5m]) / 1024 / 1024",
+            "refId": "B",
+            "legendFormat": "Write {{instance}} {{device}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "MBs", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 38}
+      },
+      {
+        "id": 18,
+        "title": "Gossip Network Activity",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(gossip_comm_messages_sent{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 Messages Sent"
+          },
+          {
+            "expr": "rate(gossip_comm_messages_received{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org1 Messages Received"
+          },
+          {
+            "expr": "rate(gossip_comm_messages_sent{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "C",
+            "legendFormat": "Org2 Messages Sent"
+          },
+          {
+            "expr": "rate(gossip_comm_messages_received{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "D",
+            "legendFormat": "Org2 Messages Received"
+          }
+        ],
+        "yAxes": [
+          {"unit": "reqps", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 46}
+      },
+      {
+        "id": 19,
+        "title": "Ledger Block Processing Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ledger_block_processing_time_sum{job=\"fabric-peer-org1\"}[5m]) / rate(ledger_block_processing_time_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 Block Processing"
+          },
+          {
+            "expr": "rate(ledger_block_processing_time_sum{job=\"fabric-peer-org2\"}[5m]) / rate(ledger_block_processing_time_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org2 Block Processing"
+          },
+          {
+            "expr": "rate(ledger_blockstorage_commit_time_sum{job=\"fabric-peer-org1\"}[5m]) / rate(ledger_blockstorage_commit_time_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "C",
+            "legendFormat": "Org1 Block Commit"
+          },
+          {
+            "expr": "rate(ledger_blockstorage_commit_time_sum{job=\"fabric-peer-org2\"}[5m]) / rate(ledger_blockstorage_commit_time_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "D",
+            "legendFormat": "Org2 Block Commit"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 46}
+      },
+      {
+        "id": 20,
+        "title": "GRPC Request Performance",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(grpc_server_unary_request_duration_sum{job=\"fabric-peer-org1\"}[5m]) / rate(grpc_server_unary_request_duration_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Org1 Unary Requests"
+          },
+          {
+            "expr": "rate(grpc_server_stream_request_duration_sum{job=\"fabric-peer-org1\"}[5m]) / rate(grpc_server_stream_request_duration_count{job=\"fabric-peer-org1\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Org1 Stream Requests"
+          },
+          {
+            "expr": "rate(grpc_server_unary_request_duration_sum{job=\"fabric-peer-org2\"}[5m]) / rate(grpc_server_unary_request_duration_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "C",
+            "legendFormat": "Org2 Unary Requests"
+          },
+          {
+            "expr": "rate(grpc_server_stream_request_duration_sum{job=\"fabric-peer-org2\"}[5m]) / rate(grpc_server_stream_request_duration_count{job=\"fabric-peer-org2\"}[5m])",
+            "refId": "D",
+            "legendFormat": "Org2 Stream Requests"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 54}
+      },
+      {
+        "id": 21,
+        "title": "Live Test Metrics - TPS",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "stress_test_operations_per_second",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 50}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 62}
+      },
+      {
+        "id": 22,
+        "title": "Live Test Metrics - Response Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "stress_test_operation_duration_seconds",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 2},
+                {"color": "red", "value": 5}
+              ]
+            },
+            "unit": "s"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 62}
+      },
+      {
+        "id": 23,
+        "title": "Test Success Rate",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (status) (stress_test_operation_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 62}
+      }
+    ],
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

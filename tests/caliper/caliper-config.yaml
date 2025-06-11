@@ -1,0 +1,97 @@
+test:
+  name: Zakat Chaincode Performance Test
+  description: Performance testing for zakat donation management system with mock data
+  workers:
+    type: local
+    number: 3
+  rounds:
+    - label: AddZakat - Gradual Load
+      description: Test zakat donation submission with increasing load
+      txNumber: 100
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 5
+          finishingTps: 25
+      workload:
+        module: workloads/addZakat.js
+        arguments:
+          chaincodeId: zakat
+          organizations: ["YDSF Malang", "YDSF Jatim"]
+          zakatTypes: ["maal", "fitrah"]
+          paymentMethods: ["transfer", "ewallet", "cash"]
+          amounts: [100000, 250000, 500000, 1000000, 2500000]
+    
+    - label: ValidatePayment - Admin Operations
+      description: Test payment validation workflow
+      txNumber: 50
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workloads/validatePayment.js
+        arguments:
+          chaincodeId: zakat
+          admins: ["AdminOrg1", "AdminOrg2"]
+    
+    - label: QueryOperations - Read Performance  
+      description: Test various query operations performance
+      txNumber: 200
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 50
+      workload:
+        module: workloads/queryOperations.js
+        arguments:
+          chaincodeId: zakat
+          queryTypes: ["GetAllZakat", "GetZakatByStatus", "GetZakatByProgram"]
+    
+    - label: MixedWorkload - Realistic Scenario
+      description: Mixed operations simulating real usage patterns
+      txNumber: 150
+      rateControl:
+        type: composite-rate
+        opts:
+          - type: fixed-rate
+            tps: 20
+            duration: 60
+          - type: linear-rate
+            startingTps: 20
+            finishingTps: 40
+            duration: 30
+          - type: fixed-rate
+            tps: 15
+            duration: 30
+      workload:
+        module: workloads/mixedOperations.js
+        arguments:
+          chaincodeId: zakat
+          addZakatWeight: 40
+          validatePaymentWeight: 20
+          queryWeight: 40
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 5
+        containers:
+          - orderer.fabriczakat.local
+          - peer.org1.fabriczakat.local  
+          - peer.org2.fabriczakat.local
+    - module: prometheus
+      options:
+        url: "http://localhost:9090"
+        metrics:
+          include: [
+            "hyperledger_fabric_*",
+            "container_*",
+            "node_*"
+          ]
+        push_url: "http://localhost:9091"
+
+observer:
+  type: prometheus
+  interval: 5

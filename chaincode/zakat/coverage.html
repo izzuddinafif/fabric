@@ -1,0 +1,1268 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>zakat: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/izzuddinafif/fabric-zakat/chaincode/zakat/zakat.go (80.5%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "regexp"
+        "time"
+
+        "github.com/hyperledger/fabric-contract-api-go/contractapi"
+)
+
+// SmartContract provides functions for managing zakat donations
+type SmartContract struct {
+        contractapi.Contract
+}
+
+// Zakat describes a zakat donation transaction
+type Zakat struct {
+        ID             string  `json:"ID"`                     // Format: ZKT-{ORG}-{YYYY}{MM}-{COUNTER}
+        ProgramID      string  `json:"programID,omitempty"`    // Which donation program
+        Muzakki        string  `json:"muzakki"`                // Donor's name
+        Amount         float64 `json:"amount"`                 // Amount in IDR
+        Type           string  `json:"type"`                   // "fitrah" or "maal"
+        PaymentMethod  string  `json:"paymentMethod"`          // "transfer", "ewallet", "credit_card"
+        Status         string  `json:"status"`                 // "pending", "collected", "distributed"
+        Organization   string  `json:"organization"`           // Collecting organization
+        ReferralCode   string  `json:"referralCode,omitempty"` // Officer's referral code (optional)
+        ReceiptNumber  string  `json:"receiptNumber"`          // Receipt/invoice number
+        Timestamp      string  `json:"timestamp"`              // When donation was submitted
+        ValidatedBy    string  `json:"validatedBy"`            // Admin who validated
+        ValidationDate string  `json:"validationDate"`         // When payment was validated
+        Mustahik       string  `json:"mustahik"`               // Recipient's name (if distributed)
+        Distribution   float64 `json:"distribution"`           // Distributed amount
+        DistributedAt  string  `json:"distributedAt"`          // Distribution timestamp
+        DistributionID string  `json:"distributionID"`         // Unique ID for the distribution event
+        DistributedBy  string  `json:"distributedBy"`          // Admin/Officer who performed the distribution
+}
+
+// DonationProgram describes a donation campaign/program
+type DonationProgram struct {
+        ID          string  `json:"ID"`          // Format: PROG-{YYYY}-{COUNTER}
+        Name        string  `json:"name"`        // Program name
+        Description string  `json:"description"` // Program description
+        Target      float64 `json:"target"`      // Target amount
+        Collected   float64 `json:"collected"`   // Amount collected so far
+        Distributed float64 `json:"distributed"` // Amount distributed so far from this program
+        StartDate   string  `json:"startDate"`   // Program start date
+        EndDate     string  `json:"endDate"`     // Program end date
+        Status      string  `json:"status"`      // "active", "completed", "suspended"
+        CreatedBy   string  `json:"createdBy"`   // Admin who created the program
+        CreatedAt   string  `json:"createdAt"`   // Creation timestamp
+}
+
+// Officer describes a petugas/officer with referral tracking
+type Officer struct {
+        ID             string  `json:"ID"`             // Format: OFF-{YYYY}-{COUNTER}
+        Name           string  `json:"name"`           // Officer name
+        ReferralCode   string  `json:"referralCode"`   // Unique referral code
+        TotalReferred  float64 `json:"totalReferred"`  // Total amount from referrals
+        CommissionRate float64 `json:"commissionRate"` // Commission percentage
+        Status         string  `json:"status"`         // "active", "inactive"
+        CreatedAt      string  `json:"createdAt"`      // Registration timestamp
+}
+
+// Enhanced validation functions supporting nanosecond timestamp-based IDs for true uniqueness
+func validateZakatID(id string) error <span class="cov8" title="1">{
+        if len(id) == 0 </span><span class="cov8" title="1">{
+                return fmt.Errorf("zakat ID cannot be empty")
+        }</span>
+        
+        // New format: ZKT-YDSF-{MLG|JTM}-{UNIXTIMESTAMPNANO}-{SEQUENCE}
+        // Also supports legacy format for backward compatibility
+        <span class="cov8" title="1">pattern := `^ZKT-YDSF-(MLG|JTM)-\d+-\d+$`
+        matched, err := regexp.MatchString(pattern, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error validating zakat ID format: %v", err)
+        }</span>
+        <span class="cov8" title="1">if !matched </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid zakat ID format. Expected format: ZKT-YDSF-{MLG|JTM}-{TIMESTAMP}-{SEQUENCE} (example: ZKT-YDSF-MLG-1735689000000000000-0001)")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateProgramID(id string) error <span class="cov8" title="1">{
+        if len(id) == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("program ID cannot be empty")
+        }</span>
+        
+        // New format: PROG-{TYPE}-{UNIXTIMESTAMPNANO}-{SEQUENCE}
+        // Also supports legacy format for backward compatibility
+        <span class="cov8" title="1">pattern := `^PROG-[A-Z0-9]+-\d+-\d+$`
+        matched, err := regexp.MatchString(pattern, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error validating program ID format: %v", err)
+        }</span>
+        <span class="cov8" title="1">if !matched </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid program ID format. Expected format: PROG-{TYPE}-{TIMESTAMP}-{SEQUENCE} (example: PROG-2024-1735689000000000000-0001)")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateOfficerID(id string) error <span class="cov8" title="1">{
+        if len(id) == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("officer ID cannot be empty")
+        }</span>
+        
+        // New format: OFF-{TYPE}-{UNIXTIMESTAMPNANO}-{SEQUENCE}
+        // Also supports legacy format for backward compatibility
+        <span class="cov8" title="1">pattern := `^OFF-[A-Z0-9]+-\d+-\d+$`
+        matched, err := regexp.MatchString(pattern, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("error validating officer ID format: %v", err)
+        }</span>
+        <span class="cov8" title="1">if !matched </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid officer ID format. Expected format: OFF-{TYPE}-{TIMESTAMP}-{SEQUENCE} (example: OFF-2024-1735689000000000000-0001)")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateTimestamp(timestamp string) error <span class="cov8" title="1">{
+        _, err := time.Parse(time.RFC3339, timestamp)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid timestamp format. Expected ISO 8601 format")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateZakatType(zakatType string) error <span class="cov8" title="1">{
+        if zakatType != "fitrah" &amp;&amp; zakatType != "maal" </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid zakat type. Must be either 'fitrah' or 'maal'")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validatePaymentMethod(method string) error <span class="cov8" title="1">{
+        validMethods := []string{"transfer", "ewallet", "credit_card", "debit_card", "cash"}
+        for _, valid := range validMethods </span><span class="cov8" title="1">{
+                if method == valid </span><span class="cov8" title="1">{
+                        return nil
+                }</span>
+        }
+        <span class="cov8" title="1">return fmt.Errorf("invalid payment method. Must be one of: transfer, ewallet, credit_card, debit_card, cash")</span>
+}
+
+func validateStatus(status string) error <span class="cov8" title="1">{
+        if status != "pending" &amp;&amp; status != "collected" &amp;&amp; status != "distributed" </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid status. Must be 'pending', 'collected', or 'distributed'")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateProgramStatus(status string) error <span class="cov8" title="1">{
+        if status != "active" &amp;&amp; status != "completed" &amp;&amp; status != "suspended" </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid program status. Must be 'active', 'completed', or 'suspended'")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateOfficerStatus(status string) error <span class="cov8" title="1">{
+        if status != "active" &amp;&amp; status != "inactive" </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid officer status. Must be 'active' or 'inactive'")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateAmount(amount float64) error <span class="cov8" title="1">{
+        if amount &lt;= 0 </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid amount. Must be greater than 0")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+func validateOrganization(org string) error <span class="cov8" title="1">{
+        if org != "YDSF Malang" &amp;&amp; org != "YDSF Jatim" </span><span class="cov8" title="1">{
+                return fmt.Errorf("invalid organization. Must be either 'YDSF Malang' or 'YDSF Jatim'")
+        }</span>
+        <span class="cov8" title="1">return nil</span>
+}
+
+// ID Generation functions with nanosecond timestamp for true uniqueness
+func generateZakatID(orgCode string, sequence int) string <span class="cov8" title="1">{
+        nanoTimestamp := time.Now().UnixNano()
+        return fmt.Sprintf("ZKT-YDSF-%s-%d-%04d", orgCode, nanoTimestamp, sequence)
+}</span>
+
+func generateProgramID(programType string, sequence int) string <span class="cov8" title="1">{
+        nanoTimestamp := time.Now().UnixNano()
+        return fmt.Sprintf("PROG-%s-%d-%04d", programType, nanoTimestamp, sequence)
+}</span>
+
+func generateOfficerID(officerType string, sequence int) string <span class="cov8" title="1">{
+        nanoTimestamp := time.Now().UnixNano()
+        return fmt.Sprintf("OFF-%s-%d-%04d", officerType, nanoTimestamp, sequence)
+}</span>
+
+// Helper function to generate unique distribution ID
+func generateDistributionID(sequence int) string <span class="cov8" title="1">{
+        nanoTimestamp := time.Now().UnixNano()
+        return fmt.Sprintf("DIST-%d-%04d", nanoTimestamp, sequence)
+}</span>
+
+// InitLedger initializes the ledger with sample data if it hasn't been initialized yet.
+// It checks for the existence of a sample program (PROG-2024-0001).
+// If the program exists, it logs that initialization is being skipped.
+// Otherwise, it creates a sample DonationProgram and a sample Officer.
+func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error <span class="cov8" title="1">{
+        sampleProgramID := "PROG-2024-0001"
+        programExists, err := ctx.GetStub().GetState(sampleProgramID)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to check sample program existence: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">if programExists != nil </span><span class="cov8" title="1">{
+                // Consider using a logging mechanism if available, e.g., ctx.GetClientIdentity().GetID() for context
+                fmt.Printf("Initialization skipped: Sample program %s already exists.\n", sampleProgramID)
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">fmt.Printf("Initializing ledger with sample data as program %s does not exist.\n", sampleProgramID)
+        timestamp := time.Now().Format(time.RFC3339)
+
+        // Create sample program with legacy ID for backward compatibility
+        program := DonationProgram{
+                ID:          sampleProgramID,
+                Name:        "Bantuan Pendidikan Anak Yatim",
+                Description: "Program bantuan pendidikan untuk anak-anak yatim yang membutuhkan.",
+                Target:      100000000, // 100 Million IDR
+                Collected:   0,
+                Distributed: 0, // Initialize Distributed to 0
+                StartDate:   "2024-01-01T00:00:00Z",
+                EndDate:     "2024-12-31T23:59:59Z",
+                Status:      "active",
+                CreatedBy:   "system", // Or a specific admin user ID
+                CreatedAt:   timestamp,
+        }
+
+        programJSON, err := json.Marshal(program)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal sample program: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(program.ID, programJSON)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to put sample program %s: %w", program.ID, err)
+        }</span>
+        <span class="cov8" title="1">fmt.Printf("Successfully created sample program: %s\n", program.ID)
+
+        // Create sample officer with legacy ID for backward compatibility
+        officer := Officer{
+                ID:             "OFF-2024-0001",
+                Name:           "Ahmad Petugas",
+                ReferralCode:   "REF001", // Ensure this is unique if used as a lookup key
+                TotalReferred:  0,
+                CommissionRate: 0.05, // 5%
+                Status:         "active",
+                CreatedAt:      timestamp,
+        }
+
+        officerJSON, err := json.Marshal(officer)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal sample officer: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(officer.ID, officerJSON)
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("failed to put sample officer %s: %w", officer.ID, err)
+        }</span>
+        <span class="cov8" title="1">fmt.Printf("Successfully created sample officer: %s\n", officer.ID)
+
+        fmt.Println("Ledger initialization complete.")
+        return nil</span>
+}
+
+// PROGRAM MANAGEMENT FUNCTIONS
+
+// CreateProgram creates a new donation program
+func (s *SmartContract) CreateProgram(ctx contractapi.TransactionContextInterface, id string, name string, description string, target float64, startDate string, endDate string, createdBy string) error <span class="cov8" title="1">{
+        if err := validateProgramID(id); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateTimestamp(startDate); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateTimestamp(endDate); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateAmount(target); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">exists, err := ctx.GetStub().GetState(id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to check program existence: %v", err)
+        }</span>
+        <span class="cov8" title="1">if exists != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("program %s already exists", id)
+        }</span>
+
+        <span class="cov8" title="1">program := DonationProgram{
+                ID:          id,
+                Name:        name,
+                Description: description,
+                Target:      target,
+                Collected:   0,
+                Distributed: 0, // Initialize Distributed to 0 for new programs
+                StartDate:   startDate,
+                EndDate:     endDate,
+                Status:      "active",
+                CreatedBy:   createdBy,
+                CreatedAt:   time.Now().Format(time.RFC3339),
+        }
+
+        programJSON, err := json.Marshal(program)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return ctx.GetStub().PutState(id, programJSON)</span>
+}
+
+// GetProgram returns a program by ID
+func (s *SmartContract) GetProgram(ctx contractapi.TransactionContextInterface, id string) (DonationProgram, error) <span class="cov8" title="1">{
+        programJSON, err := ctx.GetStub().GetState(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return DonationProgram{}, fmt.Errorf("failed to read program: %v", err)
+        }</span>
+        <span class="cov8" title="1">if programJSON == nil </span><span class="cov8" title="1">{
+                return DonationProgram{}, fmt.Errorf("program %s does not exist", id)
+        }</span>
+
+        <span class="cov8" title="1">var program DonationProgram
+        err = json.Unmarshal(programJSON, &amp;program)
+        if err != nil </span><span class="cov0" title="0">{
+                return DonationProgram{}, fmt.Errorf("failed to unmarshal program: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">return program, nil</span>
+}
+
+// GetAllPrograms returns all programs
+func (s *SmartContract) GetAllPrograms(ctx contractapi.TransactionContextInterface) ([]DonationProgram, error) <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("PROG-", "PROG-\uffff")
+        if err != nil </span><span class="cov8" title="1">{
+                return []DonationProgram{}, err
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var programs []DonationProgram
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov8" title="1">{
+                        return []DonationProgram{}, err
+                }</span>
+
+                <span class="cov8" title="1">var program DonationProgram
+                err = json.Unmarshal(queryResponse.Value, &amp;program)
+                if err != nil </span><span class="cov8" title="1">{
+                        return []DonationProgram{}, err
+                }</span>
+                <span class="cov8" title="1">programs = append(programs, program)</span>
+        }
+
+        // Always return a non-nil slice
+        <span class="cov8" title="1">if programs == nil </span><span class="cov8" title="1">{
+                programs = []DonationProgram{}
+        }</span>
+        <span class="cov8" title="1">return programs, nil</span>
+}
+
+// OFFICER MANAGEMENT FUNCTIONS
+
+// RegisterOfficer registers a new officer
+func (s *SmartContract) RegisterOfficer(ctx contractapi.TransactionContextInterface, id string, name string, referralCode string) error <span class="cov8" title="1">{
+        if err := validateOfficerID(id); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">exists, err := ctx.GetStub().GetState(id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to check officer existence: %v", err)
+        }</span>
+        <span class="cov8" title="1">if exists != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("officer %s already exists", id)
+        }</span>
+
+        // Check if referral code already exists (should be unique)
+        // This requires a query, which can be expensive. Consider if this check is critical path or can be handled by UI/app layer.
+        // For now, let's assume referral codes are managed to be unique.
+        // officerByReferral, _ := s.GetOfficerByReferral(ctx, referralCode)
+        // if officerByReferral.ID != "" {
+        //         return fmt.Errorf("referral code %s is already in use by officer %s", referralCode, officerByReferral.ID)
+        // }
+
+        <span class="cov8" title="1">officer := Officer{
+                ID:             id,
+                Name:           name,
+                ReferralCode:   referralCode,
+                TotalReferred:  0,
+                CommissionRate: 0.05, // Default 5%
+                Status:         "active",
+                CreatedAt:      time.Now().Format(time.RFC3339),
+        }
+
+        officerJSON, err := json.Marshal(officer)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return ctx.GetStub().PutState(id, officerJSON)</span>
+}
+
+// GetOfficerByReferral returns officer by referral code
+func (s *SmartContract) GetOfficerByReferral(ctx contractapi.TransactionContextInterface, referralCode string) (Officer, error) <span class="cov8" title="1">{
+        queryString := fmt.Sprintf("{\"selector\":{\"referralCode\":\"%s\"}}", referralCode)
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov8" title="1">{
+                return Officer{}, fmt.Errorf("failed to query officer: %v", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        if !resultsIterator.HasNext() </span><span class="cov0" title="0">{
+                return Officer{}, fmt.Errorf("officer with referral code %s does not exist", referralCode)
+        }</span>
+
+        <span class="cov8" title="1">queryResponse, err := resultsIterator.Next()
+        if err != nil </span><span class="cov0" title="0">{
+                return Officer{}, err
+        }</span>
+
+        <span class="cov8" title="1">var officer Officer
+        err = json.Unmarshal(queryResponse.Value, &amp;officer)
+        if err != nil </span><span class="cov0" title="0">{
+                return Officer{}, fmt.Errorf("failed to unmarshal officer: %v", err)
+        }</span>
+
+        // It's possible for multiple officers to have the same referral code if not enforced at RegisterOfficer.
+        // This query will return the first one found. If uniqueness is critical, RegisterOfficer should prevent duplicates.
+        <span class="cov8" title="1">if resultsIterator.HasNext() </span><span class="cov0" title="0">{
+                // Log a warning if multiple officers found with the same referral code
+                fmt.Printf("Warning: Multiple officers found with referral code %s. Returning the first one.\n", referralCode)
+        }</span>
+
+        <span class="cov8" title="1">return officer, nil</span>
+}
+
+// ZAKAT MANAGEMENT FUNCTIONS
+
+// AddZakat adds a new zakat donation with "pending" status.
+// programID and referralCode can be empty strings if not applicable.
+// If programID is provided, it validates that the program exists.
+// Zakat ID format is validated (e.g., ZKT-{ORG}-{YYYYMM}-{COUNTER}).
+func (s *SmartContract) AddZakat(ctx contractapi.TransactionContextInterface, id string, programID string, muzakki string, amount float64, zakatType string, paymentMethod string, organization string, referralCode string) error <span class="cov8" title="1">{
+        // Validate inputs
+        if err := validateZakatID(id); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateAmount(amount); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateZakatType(zakatType); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validatePaymentMethod(paymentMethod); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if err := validateOrganization(organization); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if muzakki == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("muzakki name cannot be empty")
+        }</span>
+
+        // Check if program exists (if programID is provided and not an empty string)
+        <span class="cov8" title="1">if programID != "" </span><span class="cov8" title="1">{
+                if err := validateProgramID(programID); err != nil </span><span class="cov8" title="1">{ // Also validate format of programID if provided
+                        return fmt.Errorf("invalid program ID format for '%s': %w", programID, err)
+                }</span>
+                <span class="cov8" title="1">program, err := s.GetProgram(ctx, programID)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to validate program ID '%s': %w", programID, err)
+                }</span>
+                <span class="cov8" title="1">if program.ID == "" </span><span class="cov0" title="0">{ // Should be redundant if GetProgram errors on not found
+                        return fmt.Errorf("program with ID '%s' does not exist", programID)
+                }</span>
+        }
+
+        // Check if officer exists by referral code (if referralCode is provided and not an empty string)
+        <span class="cov8" title="1">if referralCode != "" </span><span class="cov8" title="1">{
+                officer, err := s.GetOfficerByReferral(ctx, referralCode)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to validate referral code '%s': %w", referralCode, err)
+                }</span>
+                <span class="cov8" title="1">if officer.ID == "" </span><span class="cov0" title="0">{ // Should be redundant if GetOfficerByReferral errors on not found
+                        return fmt.Errorf("officer with referral code '%s' does not exist", referralCode)
+                }</span>
+        }
+
+        // Check if zakat already exists
+        <span class="cov8" title="1">exists, err := s.ZakatExists(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to check zakat existence for ID '%s': %w", id, err)
+        }</span>
+        <span class="cov8" title="1">if exists </span><span class="cov8" title="1">{
+                return fmt.Errorf("zakat %s already exists", id)
+        }</span>
+
+        // Create zakat with pending status
+        <span class="cov8" title="1">zakat := Zakat{
+                ID:            id,
+                ProgramID:     programID, // Will be empty if not provided
+                Muzakki:       muzakki,
+                Amount:        amount,
+                Type:          zakatType,
+                PaymentMethod: paymentMethod,
+                Status:        "pending", // Initial status
+                Organization:  organization,
+                ReferralCode:  referralCode, // Will be empty if not provided
+                Timestamp:     time.Now().Format(time.RFC3339),
+                // Initialize distribution fields with defaults for schema validation
+                ReceiptNumber:  "",
+                ValidatedBy:    "",
+                ValidationDate: "",
+                Mustahik:       "",
+                Distribution:   0,
+                DistributedAt:  "",
+                DistributionID: "",
+                DistributedBy:  "",
+        }
+
+        zakatJSON, err := json.Marshal(zakat)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal zakat data: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(id, zakatJSON)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to put zakat %s to state: %w", id, err)
+        }</span>
+        <span class="cov8" title="1">fmt.Printf("Successfully added Zakat: %s\n", id)
+        return nil</span>
+}
+
+// AutoValidatePayment automatically validates a pending payment with system-generated receipt.
+// This function checks if the zakat is in pending status and calls ValidatePayment.
+// Used by the auto-validation system for mock payments.
+func (s *SmartContract) AutoValidatePayment(ctx contractapi.TransactionContextInterface, zakatID string, paymentGatewayRef string) error <span class="cov8" title="1">{
+        if zakatID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("zakat ID cannot be empty")
+        }</span>
+
+        <span class="cov8" title="1">zakat, err := s.QueryZakat(ctx, zakatID)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to query zakat %s: %w", zakatID, err)
+        }</span>
+
+        <span class="cov8" title="1">if zakat.Status != "pending" </span><span class="cov8" title="1">{
+                return fmt.Errorf("zakat %s is not in pending status, current status: %s", zakatID, zakat.Status)
+        }</span>
+
+        // Auto-validate with system-generated receipt
+        <span class="cov8" title="1">receiptNumber := fmt.Sprintf("MOCK-PAYMENT-REF-%d", time.Now().UnixNano())
+        if paymentGatewayRef != "" </span><span class="cov8" title="1">{
+                receiptNumber = paymentGatewayRef
+        }</span>
+
+        // Call existing ValidatePayment function
+        <span class="cov8" title="1">return s.ValidatePayment(ctx, zakatID, receiptNumber, "system-auto")</span>
+}
+
+// ValidatePayment validates a pending payment. This function is typically restricted to admin users.
+// It updates the Zakat status to "collected", records receipt details, and updates
+// associated program and officer records if applicable.
+func (s *SmartContract) ValidatePayment(ctx contractapi.TransactionContextInterface, zakatID string, receiptNumber string, validatedBy string) error <span class="cov8" title="1">{
+        if zakatID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("zakat ID cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if receiptNumber == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("receipt number cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if validatedBy == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("validatedBy (admin user) cannot be empty")
+        }</span>
+
+        <span class="cov8" title="1">zakat, err := s.QueryZakat(ctx, zakatID)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to query zakat %s: %w", zakatID, err)
+        }</span>
+
+        <span class="cov8" title="1">if zakat.Status != "pending" </span><span class="cov0" title="0">{
+                return fmt.Errorf("zakat %s is not in pending status, current status: %s", zakatID, zakat.Status)
+        }</span>
+
+        // Update Zakat details
+        <span class="cov8" title="1">zakat.Status = "collected"
+        zakat.ReceiptNumber = receiptNumber
+        zakat.ValidatedBy = validatedBy
+        zakat.ValidationDate = time.Now().Format(time.RFC3339)
+        // Ensure distribution fields are initialized for schema compliance
+        zakat.Mustahik = ""
+        zakat.Distribution = 0
+        zakat.DistributedAt = ""
+        zakat.DistributionID = ""
+        zakat.DistributedBy = ""
+
+        // Update program collected amount if ProgramID is present
+        if zakat.ProgramID != "" </span><span class="cov8" title="1">{
+                program, err := s.GetProgram(ctx, zakat.ProgramID)
+                if err != nil </span><span class="cov8" title="1">{
+                        return fmt.Errorf("failed to get program %s for Zakat %s: %w", zakat.ProgramID, zakatID, err)
+                }</span>
+                <span class="cov8" title="1">program.Collected += zakat.Amount
+                programJSON, err := json.Marshal(program)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to marshal updated program %s: %w", zakat.ProgramID, err)
+                }</span>
+                <span class="cov8" title="1">err = ctx.GetStub().PutState(program.ID, programJSON)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to put updated program %s to state: %w", program.ID, err)
+                }</span>
+                <span class="cov8" title="1">fmt.Printf("Successfully updated program %s collected amount.\n", program.ID)</span>
+        }
+
+        // Update officer total referred amount if ReferralCode is present
+        <span class="cov8" title="1">if zakat.ReferralCode != "" </span><span class="cov8" title="1">{
+                officer, err := s.GetOfficerByReferral(ctx, zakat.ReferralCode)
+                if err != nil </span><span class="cov8" title="1">{
+                        return fmt.Errorf("failed to get officer with referral code %s for Zakat %s: %w", zakat.ReferralCode, zakatID, err)
+                }</span>
+                <span class="cov8" title="1">officer.TotalReferred += zakat.Amount
+                officerJSON, err := json.Marshal(officer)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to marshal updated officer %s: %w", officer.ID, err)
+                }</span>
+                <span class="cov8" title="1">err = ctx.GetStub().PutState(officer.ID, officerJSON)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to put updated officer %s to state: %w", officer.ID, err)
+                }</span>
+                <span class="cov8" title="1">fmt.Printf("Successfully updated officer %s total referred amount.\n", officer.ID)</span>
+        }
+
+        <span class="cov8" title="1">zakatJSON, err := json.Marshal(zakat)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal updated zakat %s: %w", zakatID, err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(zakatID, zakatJSON)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to put updated zakat %s to state: %w", zakatID, err)
+        }</span>
+        <span class="cov8" title="1">fmt.Printf("Successfully validated payment for Zakat: %s\n", zakatID)
+        return nil</span>
+}
+
+// QueryZakat returns zakat by ID
+func (s *SmartContract) QueryZakat(ctx contractapi.TransactionContextInterface, id string) (Zakat, error) <span class="cov8" title="1">{
+        zakatJSON, err := ctx.GetStub().GetState(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return Zakat{}, fmt.Errorf("failed to read zakat: %v", err)
+        }</span>
+        <span class="cov8" title="1">if zakatJSON == nil </span><span class="cov8" title="1">{
+                return Zakat{}, fmt.Errorf("zakat %s does not exist", id)
+        }</span>
+
+        <span class="cov8" title="1">var zakat Zakat
+        err = json.Unmarshal(zakatJSON, &amp;zakat)
+        if err != nil </span><span class="cov0" title="0">{
+                return Zakat{}, fmt.Errorf("failed to unmarshal zakat: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">return zakat, nil</span>
+}
+
+// GetAllZakat returns all zakat records on the ledger
+func (s *SmartContract) GetAllZakat(ctx contractapi.TransactionContextInterface) ([]Zakat, error) <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("ZKT-", "ZKT-\uffff")
+        if err != nil </span><span class="cov8" title="1">{
+                return []Zakat{}, err // Ensure empty slice on error
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var zakats []Zakat
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov8" title="1">{
+                        return []Zakat{}, err // Ensure empty slice on error
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov8" title="1">{
+                        return []Zakat{}, err // Ensure empty slice on error
+                }</span>
+                <span class="cov8" title="1">zakats = append(zakats, zakat)</span>
+        }
+
+        <span class="cov8" title="1">if zakats == nil </span><span class="cov8" title="1">{
+                zakats = []Zakat{}
+        }</span>
+
+        <span class="cov8" title="1">return zakats, nil</span>
+}
+
+// GetZakatByStatus returns zakat transactions by status
+func (s *SmartContract) GetZakatByStatus(ctx contractapi.TransactionContextInterface, status string) ([]Zakat, error) <span class="cov8" title="1">{
+        if err := validateStatus(status); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">queryString := fmt.Sprintf("{\"selector\":{\"status\":\"%s\"}}", status)
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to query zakat by status: %v", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var zakats []Zakat
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">zakats = append(zakats, zakat)</span>
+        }
+
+        <span class="cov8" title="1">return zakats, nil</span>
+}
+
+// GetZakatByProgram returns zakat transactions for a specific program
+func (s *SmartContract) GetZakatByProgram(ctx contractapi.TransactionContextInterface, programID string) ([]Zakat, error) <span class="cov8" title="1">{
+        queryString := fmt.Sprintf("{\"selector\":{\"programID\":\"%s\"}}", programID)
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to query zakat by program: %v", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var zakats []Zakat
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">zakats = append(zakats, zakat)</span>
+        }
+
+        <span class="cov8" title="1">return zakats, nil</span>
+}
+
+// GetZakatByOfficer returns zakat transactions referred by an officer
+func (s *SmartContract) GetZakatByOfficer(ctx contractapi.TransactionContextInterface, referralCode string) ([]Zakat, error) <span class="cov8" title="1">{
+        queryString := fmt.Sprintf("{\"selector\":{\"referralCode\":\"%s\"}}", referralCode)
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to query zakat by officer: %v", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var zakats []Zakat
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">zakats = append(zakats, zakat)</span>
+        }
+
+        <span class="cov8" title="1">return zakats, nil</span>
+}
+
+// GetZakatByMuzakki returns zakat transactions by muzakki name
+func (s *SmartContract) GetZakatByMuzakki(ctx contractapi.TransactionContextInterface, muzakkiName string) ([]Zakat, error) <span class="cov8" title="1">{
+        if muzakkiName == "" </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("muzakki name cannot be empty")
+        }</span>
+
+        <span class="cov8" title="1">queryString := fmt.Sprintf("{\"selector\":{\"muzakki\":\"%s\"}}", muzakkiName)
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to query zakat by muzakki: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var zakats []Zakat
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("error iterating over zakat by muzakki results: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("failed to unmarshal zakat data for muzakki query: %w", err)
+                }</span>
+                <span class="cov8" title="1">zakats = append(zakats, zakat)</span>
+        }
+
+        <span class="cov8" title="1">if len(zakats) == 0 </span><span class="cov0" title="0">{
+                fmt.Printf("No zakat records found for muzakki: %s\n", muzakkiName)
+        }</span> else<span class="cov8" title="1"> {
+                fmt.Printf("Found %d zakat records for muzakki: %s\n", len(zakats), muzakkiName)
+        }</span>
+
+        <span class="cov8" title="1">return zakats, nil</span>
+}
+
+// DistributeZakat distributes collected zakat.
+// It updates the Zakat status to "distributed", records distribution details,
+// and updates the associated program's distributed amount.
+func (s *SmartContract) DistributeZakat(ctx contractapi.TransactionContextInterface, zakatID string, distributionID string, recipientName string, amount float64, distributionTimestamp string, distributedBy string) error <span class="cov8" title="1">{
+        // Validate inputs
+        if zakatID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("zakat ID cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if distributionID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("distribution ID cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if recipientName == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("recipient name (mustahik) cannot be empty")
+        }</span>
+        <span class="cov8" title="1">if err := validateAmount(amount); err != nil </span><span class="cov0" title="0">{ // amount must be &gt; 0
+                return fmt.Errorf("invalid distribution amount: %w", err)
+        }</span>
+        <span class="cov8" title="1">if err := validateTimestamp(distributionTimestamp); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("invalid distribution timestamp: %w", err)
+        }</span>
+        <span class="cov8" title="1">if distributedBy == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("distributedBy (admin/officer) cannot be empty")
+        }</span>
+
+        <span class="cov8" title="1">zakat, err := s.QueryZakat(ctx, zakatID)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to query zakat %s for distribution: %w", zakatID, err)
+        }</span>
+
+        <span class="cov8" title="1">if zakat.Status != "collected" </span><span class="cov8" title="1">{
+                return fmt.Errorf("zakat %s must be in 'collected' status before distribution. Current status: %s", zakatID, zakat.Status)
+        }</span>
+
+        // The current model assumes a single distribution event per Zakat record changes its status to "distributed".
+        // If partial distributions were allowed while keeping Zakat "collected", logic would need to track remaining balance.
+        // For now, this 'amount' is the amount of *this* distribution.
+        // We should ensure this distribution amount does not exceed the original Zakat amount.
+        <span class="cov8" title="1">if amount &gt; zakat.Amount </span><span class="cov8" title="1">{
+                return fmt.Errorf("distribution amount %.2f exceeds original zakat amount %.2f for Zakat ID %s", amount, zakat.Amount, zakatID)
+        }</span>
+        // If there were previous distributions on this Zakat (not current model), this check would be more complex.
+
+        // Update Zakat details for distribution
+        <span class="cov8" title="1">zakat.Status = "distributed" // Mark as fully distributed by this action
+        zakat.Mustahik = recipientName
+        zakat.Distribution = amount // Record the amount that was distributed in this event
+        zakat.DistributedAt = distributionTimestamp
+        zakat.DistributionID = distributionID
+        zakat.DistributedBy = distributedBy
+
+        // Update program distributed amount if ProgramID is present
+        if zakat.ProgramID != "" </span><span class="cov8" title="1">{
+                program, err := s.GetProgram(ctx, zakat.ProgramID)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to get program %s for Zakat %s distribution update: %w", zakat.ProgramID, zakatID, err)
+                }</span>
+                <span class="cov8" title="1">program.Distributed += amount // Add this distribution's amount to program's total distributed
+                programJSON, err := json.Marshal(program)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to marshal updated program %s after distribution: %w", zakat.ProgramID, err)
+                }</span>
+                <span class="cov8" title="1">err = ctx.GetStub().PutState(program.ID, programJSON)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to put updated program %s to state after distribution: %w", program.ID, err)
+                }</span>
+                <span class="cov8" title="1">fmt.Printf("Successfully updated program %s distributed amount.\n", program.ID)</span>
+        }
+
+        <span class="cov8" title="1">zakatJSON, err := json.Marshal(zakat)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal updated zakat %s for distribution: %w", zakatID, err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(zakatID, zakatJSON)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to put updated zakat %s to state after distribution: %w", zakatID, err)
+        }</span>
+        <span class="cov8" title="1">fmt.Printf("Successfully distributed Zakat: %s (Distribution ID: %s) to Recipient: %s, Amount: %.2f by %s\n", zakatID, distributionID, recipientName, amount, distributedBy)
+        return nil</span>
+}
+
+// ZakatExists checks if zakat exists
+func (s *SmartContract) ZakatExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) <span class="cov8" title="1">{
+        zakatJSON, err := ctx.GetStub().GetState(id)
+        if err != nil </span><span class="cov0" title="0">{
+                return false, fmt.Errorf("failed to read from world state: %v", err)
+        }</span>
+        <span class="cov8" title="1">return zakatJSON != nil, nil</span>
+}
+
+// REPORTING FUNCTIONS
+
+// GetDailyReport generates daily donation report
+func (s *SmartContract) GetDailyReport(ctx contractapi.TransactionContextInterface, date string) (map[string]interface{}, error) <span class="cov8" title="1">{
+        targetDate, err := time.Parse("2006-01-02", date)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid date format for report. Please use YYYY-MM-DD: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">startOfDayRFC3339 := targetDate.Format(time.RFC3339)
+        nextDay := targetDate.Add(24 * time.Hour)
+        startOfNextDayRFC3339 := nextDay.Format(time.RFC3339)
+
+        queryString := fmt.Sprintf(`{
+"selector": {
+"validationDate": {
+"$gte": "%s",
+"$lt": "%s"
+},
+"status": "collected"
+}
+}`, startOfDayRFC3339, startOfNextDayRFC3339)
+        fmt.Printf("GetDailyReport query: %s\n", queryString)
+
+        resultsIterator, err := ctx.GetStub().GetQueryResult(queryString)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to query daily report: %v", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var totalAmount float64
+        var transactionCount int
+        var byType = make(map[string]float64)
+        var byProgram = make(map[string]float64) // Keyed by ProgramID, value is sum of amounts
+
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">var zakat Zakat
+                err = json.Unmarshal(queryResponse.Value, &amp;zakat)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                // Ensure only "collected" Zakat transactions are processed, though query should handle this.
+                // This is an additional safeguard or for logic if query was broader.
+                <span class="cov8" title="1">if zakat.Status == "collected" </span><span class="cov8" title="1">{
+                        totalAmount += zakat.Amount
+                        transactionCount++
+                        byType[zakat.Type] += zakat.Amount
+                        if zakat.ProgramID != "" </span><span class="cov8" title="1">{
+                                byProgram[zakat.ProgramID] += zakat.Amount
+                        }</span> else<span class="cov0" title="0"> {
+                                byProgram["&lt;No Program&gt;"] += zakat.Amount // Group Zakat not tied to a program
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">report := map[string]interface{}{
+                "date":             date,
+                "totalAmount":      totalAmount,
+                "transactionCount": transactionCount,
+                "byType":           byType,
+                "byProgram":        byProgram,
+        }
+
+        return report, nil</span>
+}
+
+// ClearAllZakat removes all Zakat records from the ledger
+func (s *SmartContract) ClearAllZakat(ctx contractapi.TransactionContextInterface) error <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("ZKT-", "ZKT-\uffff")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get Zakat records for deletion: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        deletedCount := 0
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to iterate Zakat records for deletion: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">err = ctx.GetStub().DelState(queryResponse.Key)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to delete Zakat record %s: %w", queryResponse.Key, err)
+                }</span>
+                <span class="cov8" title="1">deletedCount++</span>
+        }
+
+        <span class="cov8" title="1">fmt.Printf("Successfully deleted %d Zakat records\n", deletedCount)
+        return nil</span>
+}
+
+// ClearAllPrograms removes all DonationProgram records from the ledger
+func (s *SmartContract) ClearAllPrograms(ctx contractapi.TransactionContextInterface) error <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("PROG-", "PROG-\uffff")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get Program records for deletion: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        deletedCount := 0
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to iterate Program records for deletion: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">err = ctx.GetStub().DelState(queryResponse.Key)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to delete Program record %s: %w", queryResponse.Key, err)
+                }</span>
+                <span class="cov8" title="1">deletedCount++</span>
+        }
+
+        <span class="cov8" title="1">fmt.Printf("Successfully deleted %d Program records\n", deletedCount)
+        return nil</span>
+}
+
+// ClearAllOfficers removes all Officer records from the ledger
+func (s *SmartContract) ClearAllOfficers(ctx contractapi.TransactionContextInterface) error <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("OFF-", "OFF-\uffff")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get Officer records for deletion: %w", err)
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        deletedCount := 0
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to iterate Officer records for deletion: %w", err)
+                }</span>
+
+                <span class="cov8" title="1">err = ctx.GetStub().DelState(queryResponse.Key)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to delete Officer record %s: %w", queryResponse.Key, err)
+                }</span>
+                <span class="cov8" title="1">deletedCount++</span>
+        }
+
+        <span class="cov8" title="1">fmt.Printf("Successfully deleted %d Officer records\n", deletedCount)
+        return nil</span>
+}
+
+// GetAllOfficers returns all officer records
+func (s *SmartContract) GetAllOfficers(ctx contractapi.TransactionContextInterface) ([]Officer, error) <span class="cov8" title="1">{
+        resultsIterator, err := ctx.GetStub().GetStateByRange("OFF-", "OFF-\uffff")
+        if err != nil </span><span class="cov0" title="0">{
+                return []Officer{}, err
+        }</span>
+        <span class="cov8" title="1">defer resultsIterator.Close()
+
+        var officers []Officer
+        for resultsIterator.HasNext() </span><span class="cov8" title="1">{
+                queryResponse, err := resultsIterator.Next()
+                if err != nil </span><span class="cov0" title="0">{
+                        return []Officer{}, err
+                }</span>
+
+                <span class="cov8" title="1">var officer Officer
+                err = json.Unmarshal(queryResponse.Value, &amp;officer)
+                if err != nil </span><span class="cov0" title="0">{
+                        return []Officer{}, err
+                }</span>
+                <span class="cov8" title="1">officers = append(officers, officer)</span>
+        }
+
+        <span class="cov8" title="1">if officers == nil </span><span class="cov0" title="0">{
+                officers = []Officer{}
+        }</span>
+        <span class="cov8" title="1">return officers, nil</span>
+}
+
+// UpdateProgramStatus updates the status of a donation program
+func (s *SmartContract) UpdateProgramStatus(ctx contractapi.TransactionContextInterface, programID string, newStatus string) error <span class="cov8" title="1">{
+        if err := validateProgramStatus(newStatus); err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">program, err := s.GetProgram(ctx, programID)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get program %s: %w", programID, err)
+        }</span>
+
+        <span class="cov8" title="1">program.Status = newStatus
+        programJSON, err := json.Marshal(program)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal updated program: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(programID, programJSON)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to update program status: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">fmt.Printf("Successfully updated program %s status to %s\n", programID, newStatus)
+        return nil</span>
+}
+
+// UpdateOfficerStatus updates the status of an officer
+func (s *SmartContract) UpdateOfficerStatus(ctx contractapi.TransactionContextInterface, officerID string, newStatus string) error <span class="cov8" title="1">{
+        if err := validateOfficerStatus(newStatus); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">officerJSON, err := ctx.GetStub().GetState(officerID)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to read officer: %v", err)
+        }</span>
+        <span class="cov8" title="1">if officerJSON == nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("officer %s does not exist", officerID)
+        }</span>
+
+        <span class="cov8" title="1">var officer Officer
+        err = json.Unmarshal(officerJSON, &amp;officer)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to unmarshal officer: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">officer.Status = newStatus
+        updatedOfficerJSON, err := json.Marshal(officer)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to marshal updated officer: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">err = ctx.GetStub().PutState(officerID, updatedOfficerJSON)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to update officer status: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">fmt.Printf("Successfully updated officer %s status to %s\n", officerID, newStatus)
+        return nil</span>
+}
+
+func main() <span class="cov0" title="0">{
+        chaincode, err := contractapi.NewChaincode(&amp;SmartContract{})
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Printf("Error creating zakat chaincode: %s", err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">if err := chaincode.Start(); err != nil </span><span class="cov0" title="0">{
+                fmt.Printf("Error starting zakat chaincode: %s", err.Error())
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

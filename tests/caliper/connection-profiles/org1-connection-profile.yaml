@@ -1,0 +1,69 @@
+name: "org1-network"
+version: "1.0.0"
+
+client:
+  organization: Org1
+  connection:
+    timeout:
+      peer:
+        endorser: "300"
+        eventHub: "300"
+        eventReg: "300"
+      orderer: "300"
+
+channels:
+  zakatchannel:
+    orderers:
+      - orderer.fabriczakat.local
+    peers:
+      peer.org1.fabriczakat.local:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer.org2.fabriczakat.local:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: false
+
+organizations:
+  Org1:
+    mspid: Org1MSP
+    peers:
+      - peer.org1.fabriczakat.local
+    certificateAuthorities:
+      - ca-org1
+    adminPrivateKeyPEM:
+      path: organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/keystore/key.pem
+    signedCertPEM:
+      path: organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/signcerts/cert.pem
+
+orderers:
+  orderer.fabriczakat.local:
+    url: grpc://10.104.0.3:7050
+    grpcOptions:
+      ssl-target-name-override: orderer.fabriczakat.local
+      hostnameOverride: orderer.fabriczakat.local
+
+peers:
+  peer.org1.fabriczakat.local:
+    url: grpc://10.104.0.2:7051
+    grpcOptions:
+      ssl-target-name-override: peer.org1.fabriczakat.local
+      hostnameOverride: peer.org1.fabriczakat.local
+  
+  peer.org2.fabriczakat.local:
+    url: grpc://10.104.0.4:7051
+    grpcOptions:
+      ssl-target-name-override: peer.org2.fabriczakat.local
+      hostnameOverride: peer.org2.fabriczakat.local
+
+certificateAuthorities:
+  ca-org1:
+    url: https://10.104.0.2:7054
+    caName: ca-org1
+    tlsCACerts:
+      path: organizations/peerOrganizations/org1.fabriczakat.local/tlsca/tlsca.org1.fabriczakat.local-cert.pem
+    httpOptions:
+      verify: false

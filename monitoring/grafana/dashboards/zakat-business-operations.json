@@ -1,0 +1,255 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Zakat Business Operations Dashboard",
+    "description": "Business intelligence dashboard for zakat donation operations and workflow tracking",
+    "tags": ["zakat", "business", "donations", "operations"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Donations Created Today",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(zakat_donations_created_total[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 50},
+                {"color": "red", "value": 100}
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Total Amount Collected (IDR)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(zakat_amount_collected_idr_total)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "currencyIDR",
+            "decimals": 0
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Pending vs Collected vs Distributed",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (status) (zakat_transactions_by_status)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {"displayMode": "visible", "placement": "right"}
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Donations by Organization",
+        "type": "bargauge",
+        "targets": [
+          {
+            "expr": "sum by (organization) (zakat_donations_by_org_total)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal",
+          "displayMode": "basic"
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Program Progress Overview",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "zakat_program_target_amount_idr",
+            "refId": "A",
+            "format": "table"
+          },
+          {
+            "expr": "zakat_program_collected_amount_idr",
+            "refId": "B",
+            "format": "table"
+          },
+          {
+            "expr": "zakat_program_progress_percent",
+            "refId": "C",
+            "format": "table"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {"reducers": []}
+          }
+        ],
+        "options": {
+          "showHeader": true
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Hourly Donation Creation Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(zakat_donations_created_total[1h])",
+            "refId": "A",
+            "legendFormat": "Donations per Hour"
+          }
+        ],
+        "yAxes": [
+          {"unit": "short", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Payment Validation Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(zakat_payments_validated_total[1h])",
+            "refId": "A",
+            "legendFormat": "Validations per Hour"
+          },
+          {
+            "expr": "rate(zakat_payments_validation_errors_total[1h])",
+            "refId": "B",
+            "legendFormat": "Validation Errors per Hour"
+          }
+        ],
+        "yAxes": [
+          {"unit": "short", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 8,
+        "title": "Distribution Operations",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(zakat_distributions_created_total[1h])",
+            "refId": "A",
+            "legendFormat": "Distributions per Hour"
+          },
+          {
+            "expr": "sum(zakat_distribution_amount_idr_total)",
+            "refId": "B",
+            "legendFormat": "Total Distributed (IDR)"
+          }
+        ],
+        "yAxes": [
+          {"unit": "short", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      },
+      {
+        "id": 9,
+        "title": "Officer Performance",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "zakat_officer_donations_handled_total",
+            "refId": "A",
+            "format": "table"
+          },
+          {
+            "expr": "zakat_officer_validations_completed_total",
+            "refId": "B",
+            "format": "table"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "merge",
+            "options": {"reducers": []}
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 10,
+        "title": "Weekly Donation Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(increase(zakat_donations_created_total[7d]))",
+            "refId": "A",
+            "legendFormat": "Weekly Total"
+          },
+          {
+            "expr": "avg_over_time(zakat_amount_collected_idr_total[7d])",
+            "refId": "B",
+            "legendFormat": "Weekly Average Amount"
+          }
+        ],
+        "yAxes": [
+          {"unit": "short", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      },
+      {
+        "id": 11,
+        "title": "System Health Indicators",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"orderer|peer-org1|peer-org2\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"type": "value", "value": "0", "text": "DOWN"},
+              {"type": "value", "value": "1", "text": "UP"}
+            ]
+          }
+        },
+        "gridPos": {"h": 4, "w": 24, "x": 0, "y": 40}
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

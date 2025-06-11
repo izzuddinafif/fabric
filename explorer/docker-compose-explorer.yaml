@@ -1,0 +1,61 @@
+version: '3.8'
+
+networks:
+  fabric_network:
+    external: true
+
+services:
+  explorerdb:
+    image: hyperledger/explorer-db:1.1.8
+    container_name: explorerdb.fabriczakat.local
+    hostname: explorerdb.fabriczakat.local
+    environment:
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWORD=password
+    healthcheck:
+      test: "pg_isready -h localhost -p 5432 -q -U postgres"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - explorerdb_data:/var/lib/postgresql/data
+    networks:
+      - fabric_network
+
+  explorer:
+    image: hyperledger/explorer:1.1.8
+    container_name: explorer.fabriczakat.local
+    hostname: explorer.fabriczakat.local
+    environment:
+      - DATABASE_HOST=explorerdb.fabriczakat.local
+      - DATABASE_DATABASE=fabricexplorer
+      - DATABASE_USERNAME=hppoc
+      - DATABASE_PASSWD=password
+      - LOG_LEVEL_APP=info
+      - LOG_LEVEL_DB=info
+      - LOG_LEVEL_CONSOLE=debug
+      - LOG_CONSOLE_STDOUT=true
+      - DISCOVERY_AS_LOCALHOST=false
+      - PORT=8080
+    volumes:
+      - ./config.json:/opt/explorer/app/platform/fabric/config.json
+      - ./connection-profile:/opt/explorer/app/platform/fabric/connection-profile
+      - ../organizations:/tmp/crypto
+      - walletstore:/opt/explorer/wallet
+    ports:
+      - "8090:8080"
+    depends_on:
+      explorerdb:
+        condition: service_healthy
+    networks:
+      - fabric_network
+    extra_hosts:
+      - "orderer.fabriczakat.local:10.104.0.3"
+      - "peer.org1.fabriczakat.local:10.104.0.2"
+      - "peer.org2.fabriczakat.local:10.104.0.4"
+
+volumes:
+  explorerdb_data:
+    driver: local
+  walletstore:

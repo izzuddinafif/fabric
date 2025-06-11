@@ -1,0 +1,116 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# This configuration file is intended for peer commands and testing environments.
+# Do not use this file for production deployments.
+
+peer:
+    # ID of the peer node
+    id: peer-cli
+
+    # The network address the peer listens on for internal communication.
+    # This address should be reachable by all peers in the network.
+    # For Docker deployments, this is typically the container name and port.
+    address: 127.0.0.1:7051
+
+    # The network address the peer listens on for client and application connections.
+    # This is the address that applications use to connect to the peer.
+    listenAddress: 0.0.0.0:7051
+
+    # Address for the chaincode listener. Chaincodes launched by the peer will connect to this address.
+    # For Docker deployments, this is typically the container name and port.
+    chaincodeListenAddress: 0.0.0.0:7052
+
+    # The local MSP ID for this peer. This is the identifier of the organization this peer belongs to.
+    localMspId: SampleMSP # Needs to be overridden per org CLI context
+
+    # The path to the MSP configuration directory for this peer.
+    mspConfigPath: msp # Needs to be overridden per org CLI context
+
+    # Logging level for the peer. Options: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
+    logging:
+        level:  info
+        format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'
+
+    # TLS configuration for the peer
+    tls:
+        # TLS enabled flag. Set to true to enable TLS for all peer communications.
+        enabled: false # Needs to be overridden per org CLI context (usually true)
+        # Base directory for TLS certificates
+        # cert:
+        #     file: tls/server.crt
+        # key:
+        #     file: tls/server.key
+        # rootcert:
+        #     file: tls/ca.crt
+        # clientAuthRequired: false # If true, requires client certificates for TLS connections
+        # clientRootCAs:
+        #     files:
+        #       - tls/ca.crt
+
+    # Gossip protocol configuration
+    gossip:
+        # Address for the peer's gossip service endpoint.
+        # Should be reachable by other peers in the organization.
+        externalEndpoint: 127.0.0.1:7051 # Needs to be overridden in actual peer config
+        # Bootstrap peers for the gossip network. List of peer addresses in the format host:port.
+        bootstrap: 127.0.0.1:7051 # Needs to be overridden in actual peer config
+        # Use leader election within the organization.
+        useLeaderElection: true
+        # Is this peer eligible to be an organization leader?
+        orgLeader: false
+
+    # Ledger configuration
+    ledger:
+        # State database type. Options: goleveldb, CouchDB
+        state:
+            stateDatabase: goleveldb
+            # CouchDB configuration (only used if stateDatabase is CouchDB)
+            # couchDBConfig:
+            #     couchDBAddress: 127.0.0.1:5984
+            #     username:
+            #     password:
+            #     maxRetries: 5
+            #     maxRetriesOnStartup: 20
+            #     requestTimeout: 35s
+            #     queryLimit: 10000
+            #     maxBatchUpdateSize: 1000
+
+    # Operations service configuration (for metrics and health checks)
+    operations:
+        # Address and port for the operations server
+        listenAddress: 127.0.0.1:9443 # Needs to be overridden per peer
+        # TLS configuration for the operations service
+        tls:
+            enabled: false
+            # cert:
+            #     file: tls/server.crt
+            # key:
+            #     file: tls/server.key
+            # clientAuthRequired: false
+            # clientRootCAs:
+            #     files:
+            #       - tls/ca.crt
+
+    # Metrics provider configuration (e.g., prometheus, statsd)
+    metrics:
+        provider: disabled # Options: disabled, prometheus, statsd
+
+    # Virtual machine configuration (for Docker chaincode execution)
+    vm:
+        # Endpoint for the Docker daemon. unix socket or tcp address.
+        endpoint: unix:///var/run/docker.sock
+        # Docker host configuration options
+        docker:
+            hostconfig:
+                # Network mode for chaincode containers. Should match the peer's network.
+                NetworkMode: host # Needs to be overridden in actual peer config (e.g., fabric_network)
+
+# Chaincode specific configuration
+chaincode:
+    # Logging level for chaincode containers
+    logging:
+        level: info
+        format: '%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}'

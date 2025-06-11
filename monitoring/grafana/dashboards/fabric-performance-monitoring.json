@@ -1,0 +1,390 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Hyperledger Fabric Performance Monitoring",
+    "description": "Comprehensive performance monitoring for all Fabric network components",
+    "tags": ["fabric", "performance", "monitoring", "zakat"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Orderer Block Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(orderer_consensus_etcdraft_committed_block_number[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 20}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Orderer Broadcast TPS",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(broadcast_processed_count[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 50}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Peer Endorsement Rate (Org1)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(endorser_proposals_received{job=\"peer-org1\"}[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Peer Endorsement Rate (Org2)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(endorser_proposals_received{job=\"peer-org2\"}[5m])",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Chaincode Duration (Org1)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "chaincode_execute_timeouts{job=\"peer-org1\"}",
+            "refId": "A",
+            "legendFormat": "Timeouts"
+          },
+          {
+            "expr": "rate(chaincode_launch_duration_sum{job=\"peer-org1\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Launch Duration"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}
+      },
+      {
+        "id": 6,
+        "title": "Chaincode Duration (Org2)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "chaincode_execute_timeouts{job=\"peer-org2\"}",
+            "refId": "A",
+            "legendFormat": "Timeouts"
+          },
+          {
+            "expr": "rate(chaincode_launch_duration_sum{job=\"peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Launch Duration"
+          }
+        ],
+        "yAxes": [
+          {"unit": "s", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6}
+      },
+      {
+        "id": 7,
+        "title": "CouchDB Operations (Org1)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(couchdb_database_reads{job=\"peer-org1\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Reads"
+          },
+          {
+            "expr": "rate(couchdb_database_writes{job=\"peer-org1\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Writes"
+          }
+        ],
+        "yAxes": [
+          {"unit": "reqps", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14}
+      },
+      {
+        "id": 8,
+        "title": "CouchDB Operations (Org2)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(couchdb_database_reads{job=\"peer-org2\"}[5m])",
+            "refId": "A",
+            "legendFormat": "Reads"
+          },
+          {
+            "expr": "rate(couchdb_database_writes{job=\"peer-org2\"}[5m])",
+            "refId": "B",
+            "legendFormat": "Writes"
+          }
+        ],
+        "yAxes": [
+          {"unit": "reqps", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14}
+      },
+      {
+        "id": 9,
+        "title": "System CPU Usage (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "refId": "A",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"max": 100, "min": 0, "unit": "percent"}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22}
+      },
+      {
+        "id": 10,
+        "title": "System Memory Usage (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "100 * (1 - ((node_memory_MemAvailable_bytes) / (node_memory_MemTotal_bytes)))",
+            "refId": "A",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"max": 100, "min": 0, "unit": "percent"}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22}
+      },
+      {
+        "id": 11,
+        "title": "Container CPU Usage (Fabric Components)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{name=~\".*fabric.*|.*orderer.*|.*peer.*|.*couchdb.*\"}[5m]) * 100",
+            "refId": "A",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "percent", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 30}
+      },
+      {
+        "id": 12,
+        "title": "Container Memory Usage (Fabric Components)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{name=~\".*fabric.*|.*orderer.*|.*peer.*|.*couchdb.*\"} / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "MB", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 30}
+      },
+      {
+        "id": 13,
+        "title": "Network I/O (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(node_network_receive_bytes_total[5m]) / 1024",
+            "refId": "A",
+            "legendFormat": "RX {{instance}}"
+          },
+          {
+            "expr": "rate(node_network_transmit_bytes_total[5m]) / 1024",
+            "refId": "B",
+            "legendFormat": "TX {{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "KBs", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 38}
+      },
+      {
+        "id": 14,
+        "title": "Disk I/O (All Nodes)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(node_disk_read_bytes_total[5m]) / 1024",
+            "refId": "A",
+            "legendFormat": "Read {{instance}}"
+          },
+          {
+            "expr": "rate(node_disk_written_bytes_total[5m]) / 1024",
+            "refId": "B",
+            "legendFormat": "Write {{instance}}"
+          }
+        ],
+        "yAxes": [
+          {"unit": "KBs", "min": 0}
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 38}
+      },
+      {
+        "id": 15,
+        "title": "Ledger Metrics (Both Orgs)",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ledger_blockchain_height",
+            "refId": "A",
+            "format": "table"
+          },
+          {
+            "expr": "ledger_blockstorage_commit_time",
+            "refId": "B",
+            "format": "table"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 46}
+      },
+      {
+        "id": 16,
+        "title": "Gossip Metrics (Both Orgs)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "gossip_leader_election_leader",
+            "refId": "A",
+            "legendFormat": "Leader {{job}}"
+          },
+          {
+            "expr": "rate(gossip_comm_messages_sent[5m])",
+            "refId": "B",
+            "legendFormat": "Messages Sent {{job}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 46}
+      },
+      {
+        "id": 17,
+        "title": "Live Test Metrics - TPS",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "stress_test_operations_per_second",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 50}
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 0, "y": 54}
+      },
+      {
+        "id": 18,
+        "title": "Live Test Metrics - Response Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "stress_test_operation_duration_seconds",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 2},
+                {"color": "red", "value": 5}
+              ]
+            },
+            "unit": "s"
+          }
+        },
+        "gridPos": {"h": 6, "w": 6, "x": 6, "y": 54}
+      },
+      {
+        "id": 19,
+        "title": "Test Success Rate",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (status) (stress_test_operation_total)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 54}
+      }
+    ],
+    "time": {
+      "from": "now-30m",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

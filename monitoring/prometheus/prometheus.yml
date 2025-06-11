@@ -1,0 +1,63 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Pushgateway for stress test metrics
+  - job_name: 'pushgateway'
+    static_configs:
+      - targets: ['pushgateway:9091']
+
+  # Node exporter for system metrics (all nodes)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100', '10.104.0.2:9100', '10.104.0.4:9100']
+
+  # cAdvisor for container metrics (all nodes)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080', '10.104.0.2:8080', '10.104.0.4:8080']
+
+  # Hyperledger Fabric Orderer (comprehensive metrics)
+  - job_name: 'fabric-orderer'
+    static_configs:
+      - targets: ['10.104.0.3:8443']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Hyperledger Fabric Peer Org1 (comprehensive metrics)
+  - job_name: 'fabric-peer-org1'
+    static_configs:
+      - targets: ['10.104.0.2:9445']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Hyperledger Fabric Peer Org2 (comprehensive metrics)
+  - job_name: 'fabric-peer-org2'
+    static_configs:
+      - targets: ['10.104.0.4:9445']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # CouchDB Org1 (if available)
+  - job_name: 'couchdb-org1'
+    static_configs:
+      - targets: ['10.104.0.2:5984']
+    scrape_interval: 30s
+    metrics_path: /_node/_local/_prometheus
+
+  # CouchDB Org2 (if available)
+  - job_name: 'couchdb-org2'
+    static_configs:
+      - targets: ['10.104.0.4:5984']
+    scrape_interval: 30s
+    metrics_path: /_node/_local/_prometheus

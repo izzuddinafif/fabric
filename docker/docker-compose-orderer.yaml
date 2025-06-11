@@ -1,0 +1,54 @@
+version: '2.4'
+
+networks:
+  fabric_network:
+    name: fabric_network
+    # external: true
+
+volumes:
+  orderer_ledger:
+  orderer_etcdraft_wal:
+  orderer_etcdraft_snapshot:
+
+services:
+  orderer.fabriczakat.local:
+    container_name: orderer.fabriczakat.local
+    image: hyperledger/fabric-orderer:2.5.10
+    restart: unless-stopped
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_OPERATIONS_LISTENADDRESS=0.0.0.0:8443
+      - ORDERER_METRICS_PROVIDER=prometheus
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    ports:
+      - 7050:7050
+      - 7053:7053
+      - 8443:8443
+    volumes:
+      - /home/fabricadmin/fabric/channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - /home/fabricadmin/fabric/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/msp:/var/hyperledger/orderer/msp
+      - /home/fabricadmin/fabric/organizations/ordererOrganizations/fabriczakat.local/orderers/orderer.fabriczakat.local/tls:/var/hyperledger/orderer/tls
+      - orderer_ledger:/var/hyperledger/production/orderer
+      - orderer_etcdraft_wal:/var/hyperledger/production/orderer/etcdraft/wal
+      - orderer_etcdraft_snapshot:/var/hyperledger/production/orderer/etcdraft/snapshot
+    networks:
+      - fabric_network
+    extra_hosts:
+      - "orderer.fabriczakat.local:127.0.0.1"
+      - "peer.org1.fabriczakat.local:10.104.0.2"
+      - "peer.org2.fabriczakat.local:10.104.0.4"

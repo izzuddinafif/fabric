@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Arabic font for Islamic styling */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+/* Custom base styles */
+@layer base {
+  body {
+    @apply font-sans text-gray-900 bg-gray-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-900;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply bg-islamic-green-600 hover:bg-islamic-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-islamic-green-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-islamic-gold-600 hover:bg-islamic-gold-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-islamic-gold-500 focus:ring-offset-2;
+  }
+  
+  .btn-outline {
+    @apply border border-islamic-green-600 text-islamic-green-600 hover:bg-islamic-green-600 hover:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-islamic-green-500 focus:ring-offset-2;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg border border-gray-100 p-6;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-islamic-green-500 focus:border-islamic-green-500 transition-colors duration-200;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  .error {
+    @apply text-red-600 text-sm mt-1;
+  }
+  
+  .success {
+    @apply text-islamic-green-600 text-sm mt-1;
+  }
+}
+
+/* Islamic decorative elements */
+@layer utilities {
+  .islamic-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316a34a' fill-opacity='0.05'%3E%3Cpath d='M30 30c0-16.569 13.431-30 30-30v60c-16.569 0-30-13.431-30-30zM0 30c0 16.569 13.431 30 30 30V0C13.431 0 0 13.431 0 30z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .gradient-islamic {
+    background: linear-gradient(135deg, #16a34a 0%, #f59e0b 100%);
+  }
+}

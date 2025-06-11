@@ -1,0 +1,54 @@
+{
+  "name": "zakat-network",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "client": {
+    "tlsEnable": false,
+    "adminCredential": {
+      "id": "exploreradmin",
+      "password": "exploreradminpw"
+    },
+    "enableAuthentication": false,
+    "organization": "Org1MSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "zakatchannel": {
+      "peers": {
+        "peer.org1.fabriczakat.local": {},
+        "peer.org2.fabriczakat.local": {}
+      }
+    }
+  },
+  "organizations": {
+    "Org1MSP": {
+      "mspid": "Org1MSP",
+      "adminPrivateKey": {
+        "path": "/opt/explorer/app/platform/fabric/organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/keystore/priv_sk"
+      },
+      "signedCert": {
+        "path": "/opt/explorer/app/platform/fabric/organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/signcerts/cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer.org1.fabriczakat.local": {
+      "url": "grpc://10.104.0.2:7051"
+    },
+    "peer.org2.fabriczakat.local": {
+      "url": "grpc://10.104.0.4:7051"
+    }
+  },
+  "orderers": {
+    "orderer.fabriczakat.local": {
+      "url": "grpc://localhost:7050"
+    }
+  }
+}

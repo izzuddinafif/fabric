@@ -1,0 +1,39 @@
+name: Zakat Network
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+
+channels:
+  - channelName: zakatchannel
+    contracts:
+      - id: zakat
+        version: "2.0"
+        language: golang
+        path: chaincode/zakat
+        metadataPath: ""
+
+organizations:
+  - mspid: Org1MSP
+    identities:
+      certificates:
+        - name: "Admin@org1.fabriczakat.local"
+          clientPrivateKey:
+            path: "/home/fabricadmin/fabric/organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/keystore/key.pem"
+          clientSignedCert:
+            path: "/home/fabricadmin/fabric/organizations/peerOrganizations/org1.fabriczakat.local/users/Admin@org1.fabriczakat.local/msp/signcerts/cert.pem"
+    connectionProfile:
+      path: "connection-profiles/org1-connection-profile.yaml"
+      discover: true
+
+  - mspid: Org2MSP
+    identities:
+      certificates:
+        - name: "Admin@org2.fabriczakat.local"
+          clientPrivateKey:
+            path: "/home/fabricadmin/fabric/organizations/peerOrganizations/org2.fabriczakat.local/users/Admin@org2.fabriczakat.local/msp/keystore/key.pem"
+          clientSignedCert:
+            path: "/home/fabricadmin/fabric/organizations/peerOrganizations/org2.fabriczakat.local/users/Admin@org2.fabriczakat.local/msp/signcerts/cert.pem"
+    connectionProfile:
+      path: "connection-profiles/org2-connection-profile.yaml"
+      discover: true
